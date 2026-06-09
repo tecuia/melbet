@@ -1,0 +1,127 @@
+/* Базовый сброс стилей */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: #000000;
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Главный контейнер промо-экрана */
+.promo-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 100vh;
+    width: 100%;
+    padding: 60px 40px 60px 160px; 
+    background-image: url('./imgs/back.png');
+    background-size: 2676px 1505px;
+    background-position: 0px -235px;
+    background-repeat: no-repeat;
+}
+
+/* Затемняющий градиентный фильтр */
+.dark-filter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(62.96% 42.87% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.promo-header, .promo-content, .promo-btn {
+    position: relative;
+    z-index: 2;
+}
+
+.promo-header {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 242px;
+    height: 40px;
+    object-fit: contain;
+}
+
+/* Блок текстового контента */
+.promo-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; 
+    width: 100%;
+    max-width: 1059px;
+    margin-top: 140px; 
+}
+
+.promo-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 80px;
+    line-height: 100%;
+    color: #FFFFFF;
+    width: 100%;
+}
+
+.promo-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 130%;
+    color: #CDCDCD;
+    align-self: stretch;
+}
+
+.highlight-text {
+    color: #FFFFFF;
+}
+
+/* Стартовая кнопка */
+.promo-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 32px 14px;
+    gap: 10px;
+    width: 480px;
+    height: 100px;
+    margin-top: 40px; 
+    background: #FDBA01;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-text {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 110%;
+    text-align: center;
+    color: #161616;
+}
+
+.promo-btn:hover {
+    background-color: #e5a700;
+}
+
+.promo-btn:active {
+    transform: scale(0.98);
+}

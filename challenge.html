@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мелбет - Выбери испытание</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="challenge.css">
+</head>
+<body>
+
+    <main class="challenge-container">
+        <div class="dark-filter"></div>
+
+        <section class="challenge-content">
+            <h1 class="challenge-title">Выбери испытание</h1>
+            <p class="challenge-subtitle">
+                Три футбольных сценария — три способа повторить легендарный момент&nbsp;ЧМ. 
+                Успешно пройди хотя&nbsp;бы один, чтобы получить бонус
+            </p>
+        </section>
+
+        <div class="cards-container">
+            <div class="challenge-card" id="cardGoalkeeper" 
+                 data-black="./imgs/Goalkeeper_Black.png" 
+                 data-yellow="./imgs/Goalkeeper_Yellow.png">
+                <img src="./imgs/Goalkeeper_Black.png" alt="Вратарь" class="card-img">
+            </div>
+            
+            <div class="challenge-card" id="cardBombardier" 
+                 data-black="./imgs/Bombardier_Black.png" 
+                 data-yellow="./imgs/Bombardier_Yellow.png">
+                <img src="./imgs/Bombardier_Black.png" alt="Бомбардир" class="card-img">
+            </div>
+            
+            <div class="challenge-card" id="cardSniper" 
+                 data-black="./imgs/Sniper_Black.png" 
+                 data-yellow="./imgs/Sniper_Yellow.png">
+                <img src="./imgs/Sniper_Black.png" alt="Снайпер" class="card-img">
+            </div>
+        </div>
+
+        <a class="challenge-btn disabled" id="playBtn">
+            <span class="btn-text">Начать игру</span>
+        </a>
+    </main>
+
+    <script src="challenge.js"></script>
+</body>
+</html>

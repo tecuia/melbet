@@ -1,0 +1,339 @@
+/* Базовый сброс стилей */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: #363636;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+}
+
+/* Основной контейнер игрового экрана */
+.game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: space-between; 
+    height: 100vh; 
+    width: 100%;
+    padding: 40px 20px 60px 20px; 
+    background-image: url('./imgs/goalkeeper.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Верхнее градиентное затемнение под текст */
+.top-gradient {
+    position: absolute;
+    width: 100%;
+    height: 400px;
+    left: 0;
+    top: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 23.4%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Блок заголовков */
+.game-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; 
+    width: 100%;
+    max-width: 776px;
+    z-index: 3;
+}
+
+.game-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 54px; 
+    line-height: 100%;
+    text-align: center;
+    color: #FFFFFF;
+    white-space: nowrap; 
+}
+
+.game-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px; 
+    line-height: 130%;
+    text-align: center;
+    color: #FFFFFF; 
+}
+
+/* Сетка ворот с компенсационным сдвигом для выравнивания */
+.goal-container {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    width: 554px;
+    height: 215px;
+    left: calc(50% - 554px / 2 + 22px); 
+    top: 165.4px; 
+    z-index: 4;
+}
+
+/* Стилизация и схлопывание рамок секторов */
+.goal-sector {
+    flex: none;
+    width: 190px;
+    height: 215px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 2.04px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.08); 
+    border: 8px solid #7A7A7A; 
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.goal-sector:not(:last-child) {
+    margin-right: -8px;
+}
+
+/* Подсветка при наведении и выборе сектора */
+.goal-sector:hover,
+.goal-sector.is-selected {
+    background: rgba(253, 186, 1, 0.4);
+    border-color: #FDBA01;
+    z-index: 5;
+}
+
+/* Кнопка "Поехали" */
+.game-btn {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    padding: 9px 24px 10px 24px;
+    width: 360px;
+    height: 75px;
+    background: #FDBA01;
+    border-radius: 9px;
+    z-index: 3;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-text {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px; 
+    line-height: 110%;
+    text-align: center;
+    color: #161616;
+}
+
+.game-btn.disabled {
+    background: #FDBA01;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 1; 
+}
+
+.game-btn:not(.disabled):hover {
+    background-color: #e5a700;
+}
+
+.game-btn:not(.disabled):active {
+    transform: scale(0.98);
+}
+
+/* Фиксированные полноэкранные оверлеи результатов */
+.result-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #161616;
+    display: none; 
+    justify-content: center;
+    align-items: center;
+    z-index: 100; 
+}
+
+.result-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+}
+
+.result-screen.is-active {
+    display: flex;
+}
+
+/* ==========================================================================
+   СТИЛИ ДЛЯ ЭКРАНА ПОБЕДЫ 
+   ========================================================================= */
+
+.screen-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    
+    background-color: #161616; 
+    background-image: url('./imgs/win.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    z-index: 100;
+    display: none; 
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 160px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.screen-overlay.is-active {
+    display: flex;
+}
+
+.screen-content-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    max-width: 655px;
+    height: 100%;
+}
+
+.win-title-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.win-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 60px;
+    line-height: 100%;
+    color: #FFFFFF;
+}
+
+.win-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 130%;
+    color: #FFFFFF;
+}
+
+.win-bonus-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.win-bonus-title {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 130%;
+    color: #CDCDCD;
+}
+
+.win-buttons-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.win-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 32px 14px;
+    width: 480px;
+    height: 100px;
+    border-radius: 12px;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.win-btn:hover {
+    transform: translateY(-2px);
+}
+
+.win-btn-text {
+    font-family: 'Montserrat', sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 110%;
+    text-align: center;
+}
+
+.btn-yellow {
+    background: #FDBA01;
+}
+.btn-yellow .win-btn-text {
+    color: #161616;
+}
+.btn-yellow:hover {
+    background-color: #e5a700;
+}
+
+.btn-reverse {
+    background: #161616;
+    border: 1px solid #FDBA01;
+}
+.btn-reverse .win-btn-text {
+    color: #FDBA01;
+}
+.btn-reverse:hover {
+    background: rgba(253, 186, 1, 0.08);
+}
+
+.screen-content-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.photo-card-wrapper {
+    position: relative;
+    width: 857px;
+    height: 574px;
+    border: 14px solid #FFFFFF; 
+    border-radius: 30px;
+    transform: rotate(-5.25deg);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.win-safe-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}

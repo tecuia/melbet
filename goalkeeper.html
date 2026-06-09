@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мелбет - Отбей пенальти</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="goalkeeper.css">
+</head>
+<body>
+
+    <main class="game-container">
+        <div class="top-gradient"></div>
+
+        <div class="game-content">
+            <h1 class="game-title">Отбей пенальти</h1>
+            <p class="game-subtitle">Смотри на разбег, выбирай угол и попробуй спасти ворота</p>
+        </div>
+
+        <div class="goal-container">
+            <div class="goal-sector" data-sector="left"></div>
+            <div class="goal-sector" data-sector="center"></div>
+            <div class="goal-sector" data-sector="right"></div>
+        </div>
+        
+        <a class="game-btn disabled" id="letsGoBtn">
+            <span class="btn-text">Поехали</span>
+        </a>
+
+<div id="winScreen" class="screen-overlay">
+    
+    <div class="screen-content-left">
+        <div class="win-title-body">
+            <h2 class="win-title">Сейв!</h2>
+            <p class="win-subtitle">
+                Ты повторил один из ключевых сейвов ЧМ-2010: Икер Касильяс отбил пенальти Оскара Кардосо в матче Испания — Парагвай и сохранил шансы сборной на будущий титул
+            </p>
+        </div>
+        
+        <div class="win-bonus-container">
+            <p class="win-bonus-title">Тебе доступен бонус</p>
+            
+            <div class="win-buttons-layout">
+                <a href="#" class="win-btn btn-yellow">
+                    <span class="win-btn-text">Забрать бонус</span>
+                </a>
+                <a href="challenge.html" class="win-btn btn-reverse">
+                    <span class="win-btn-text">Выбрать испытание</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="screen-content-right">
+        <div class="photo-card-wrapper">
+            <img src="./imgs/safe.png" alt="Сейв" class="win-safe-photo">
+        </div>
+    </div>
+
+</div>
+
+        <div id="loseScreen" class="screen-overlay screen-lose"></div>
+
+    </main>
+
+    <script src="goalkeeper.js"></script>
+</body>
+</html>
