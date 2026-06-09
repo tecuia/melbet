@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedSector === 'left' || selectedSector === 'center') {
             winScreen.classList.add('is-active');
             
-            // ЗАПОМИНАЕМ ПОБЕДУ: сохраняем флаг в память браузера
+            // Записываем временный флаг победы
             localStorage.setItem('goalkeeper_completed', 'true');
             
         } else if (selectedSector === 'right') {

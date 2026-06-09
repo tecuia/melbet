@@ -2,16 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const playBtn = document.getElementById('playBtn');
     const cards = document.querySelectorAll('.challenge-card');
 
-    // 1. Проверяем, было ли успешно пройдено испытание "Вратарь"
+    // 1. Проверяем флаг прохождения испытания "Вратарь"
     const isGoalkeeperCompleted = localStorage.getItem('goalkeeper_completed') === 'true';
 
     if (isGoalkeeperCompleted) {
+        // КЛЮЧЕВОЙ ФИКС: Сразу удаляем флаг из памяти. 
+        // При первой загрузке карточка станет зеленой, но при обновлении страницы (F5) она сбросится.
+        localStorage.removeItem('goalkeeper_completed');
+        
         const gkCard = document.getElementById('cardGoalkeeper');
         if (gkCard) {
-            gkCard.classList.add('is-completed'); 
+            gkCard.classList.add('is-completed'); // Добавляем класс пройденного состояния
             const img = gkCard.querySelector('.card-img');
             if (img) {
-                img.src = './imgs/Goalkeeper_Green.png'; 
+                img.src = './imgs/Goalkeeper_Green.png'; // Подменяем картинку на зеленую
             }
         }
     }
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentImg = card.querySelector('.card-img');
                 if (currentImg) currentImg.src = card.getAttribute('data-yellow');
 
+                // Подставляем адрес страницы в зависимости от ID карточки
                 if (playBtn) {
                     if (card.id === 'cardGoalkeeper') {
                         playBtn.setAttribute('href', 'goalkeeper.html');
@@ -50,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         playBtn.setAttribute('href', 'sniper.html');
                     }
                     
+                    // Активируем кнопку "Начать"
                     playBtn.classList.remove('disabled');
                 }
             } 
