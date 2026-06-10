@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Логика обработки клика по кнопке "Поехали"
     letsGoBtn.addEventListener('click', (e) => {
         if (letsGoBtn.classList.contains('disabled')) {
             e.preventDefault();

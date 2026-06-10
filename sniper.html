@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мелбет - Футбольный снайпер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="sniper.css">
+</head>
+<body>
+
+    <main class="game-container">
+        <div class="top-gradient"></div>
+
+        <div class="game-content">
+            <h1 class="game-title">Замкни передачу</h1>
+            <p class="game-subtitle">Смотри на траекторию мяча и нажми удар в нужный момент</p>
+        </div>
+
+        <div class="sniper-game-area">
+        </div>
+        
+        <a class="game-btn" id="letsGoBtn" style="text-decoration: none; cursor: pointer;">
+            <span class="btn-text" id="btnText">Поехали</span>
+        </a>
+    </main>
+
+    <div class="screen-overlay" id="winScreen">
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Гол!</h2>
+                <p class="win-subtitle">Ты повторил легендарный гол Робина ван <br> Перси в матче Нидерланды — Испания <br> на ЧМ-2014: дальняя передача, прыжок <br> и точный удар головой в ворота</p>
+                <p class="win-small-text">Тебе доступен бонус</p>
+            </div>
+            <div class="win-buttons-layout">
+                <a href="index.html?final=true" class="win-btn btn-yellow" style="text-decoration: none;">
+                    <span class="win-btn-text">Забрать бонус</span>
+                </a>
+                <a href="challenge.html" class="win-btn btn-reverse" style="text-decoration: none;">
+                    <span class="win-btn-text">Выбрать испытание</span>
+                </a>
+            </div>
+        </div>
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/head.png" alt="Голова" class="win-safe-photo">
+            </div>
+        </div>
+    </div>
+
+    <div class="screen-overlay" id="loseScreen">
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Не попал</h2>
+                <p class="win-subtitle">Ты немного не попал в тайминг. <br> Попробуй ещё раз или выбери <br> другое испытание</p>
+            </div>
+            <div class="win-buttons-layout">
+                <a href="sniper.html" class="win-btn btn-yellow" style="text-decoration: none;">
+                    <span class="win-btn-text">Попробовать заново</span>
+                </a>
+                <a href="challenge.html" class="win-btn btn-reverse" style="text-decoration: none;">
+                    <span class="win-btn-text">Другое испытание</span>
+                </a>
+            </div>
+        </div>
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/catch.png" alt="Поймал" class="win-safe-photo">
+            </div>
+        </div>
+    </div>
+
+    <script src="sniper.js"></script>
+</body>
+</html>

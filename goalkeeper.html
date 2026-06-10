@@ -29,39 +29,63 @@
             <span class="btn-text">Поехали</span>
         </a>
 
-<div id="winScreen" class="screen-overlay">
-    
-    <div class="screen-content-left">
-        <div class="win-title-body">
-            <h2 class="win-title">Сейв!</h2>
-            <p class="win-subtitle">
-                Ты повторил один из ключевых сейвов ЧМ-2010: Икер Касильяс отбил пенальти Оскара Кардосо в матче Испания — Парагвай и сохранил шансы сборной на будущий титул
-            </p>
-        </div>
+<div class="screen-overlay" id="winScreen">
         
-        <div class="win-bonus-container">
-            <p class="win-bonus-title">Тебе доступен бонус</p>
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Сейв!</h2>
+                <p class="win-subtitle">Ты отлично среагировал и спас свои ворота!</p>
+            </div>
             
             <div class="win-buttons-layout">
-                <a href="#" class="win-btn btn-yellow">
+                
+                <a href="index.html?final=true" class="win-btn btn-yellow">
                     <span class="win-btn-text">Забрать бонус</span>
                 </a>
+                
                 <a href="challenge.html" class="win-btn btn-reverse">
                     <span class="win-btn-text">Выбрать испытание</span>
                 </a>
+                
             </div>
         </div>
-    </div>
-    
-    <div class="screen-content-right">
-        <div class="photo-card-wrapper">
-            <img src="./imgs/safe.png" alt="Сейв" class="win-safe-photo">
+
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/safe.png" alt="Успешный сейв" class="win-safe-photo">
+            </div>
         </div>
+        
     </div>
 
-</div>
+<div class="screen-overlay" id="loseScreen">
+        
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Не угадал</h2>
+                <p class="win-subtitle">Удар оказался точнее. Попробуй<br>ещё раз или выбери другое испытание</p>
+            </div>
+            
+            <div class="win-buttons-layout">
+                
+                <a href="goalkeeper.html" class="win-btn btn-yellow" style="text-decoration: none;">
+                    <span class="win-btn-text">Попробовать заново</span>
+                </a>
+                
+                <a href="challenge.html" class="win-btn btn-reverse" style="text-decoration: none;">
+                    <span class="win-btn-text">Другое испытание</span>
+                </a>
+                
+            </div>
+        </div>
 
-        <div id="loseScreen" class="screen-overlay screen-lose"></div>
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/miss.png" alt="Промах" class="win-safe-photo">
+            </div>
+        </div>
+        
+    </div>
 
     </main>
 

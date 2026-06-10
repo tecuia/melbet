@@ -1,0 +1,266 @@
+/* Базовый сброс стилей */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: #363636;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+}
+
+/* Главный контейнер */
+.game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: space-between; 
+    height: 100vh; 
+    width: 100%;
+    padding: 40px 20px 60px 20px; 
+    
+    background-image: url('./imgs/sniper.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.top-gradient {
+    position: absolute;
+    width: 100%;
+    height: 400px; 
+    left: 0;
+    top: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 23.4%, rgba(0, 0, 0, 0) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.game-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.game-title {
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 110%;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.game-subtitle {
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 130%;
+    text-align: center;
+    color: #CDCDCD;
+    max-width: 800px;
+}
+
+.sniper-game-area {
+    position: relative;
+    z-index: 2;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.game-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 32px 14px 32px;
+    gap: 10px;
+    width: 480px;
+    height: 100px;
+    background: #FDBA01;
+    border-radius: 12px;
+    
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 110%;
+    text-align: center;
+    color: #161616;
+    
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    z-index: 2;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.game-btn:not(.disabled):hover { background: #e5a700; }
+.game-btn:not(.disabled):active { transform: scale(0.98); }
+.game-btn.disabled {
+    background: #2E2E2E;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #717171;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   ЭКРАНЫ ПОБЕДЫ И ПОРАЖЕНИЯ
+   ========================================================================= */
+
+.screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 80px 0 128px;
+    z-index: 100;
+}
+
+.screen-overlay.is-active { 
+    display: grid !important; 
+}
+
+#winScreen { 
+    background: #161616 url('./imgs/win.png') center / cover no-repeat; 
+}
+#loseScreen { 
+    background: #161616 url('./imgs/lose.png') center / cover no-repeat; 
+}
+
+.screen-content-left { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 32px; 
+}
+
+.win-title-body { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 13px; 
+}
+
+.win-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 100%;
+    color: #FFFFFF;
+    text-transform: none;
+}
+
+.win-subtitle { 
+    font-family: 'Montserrat', sans-serif;
+    font-size: 26px; 
+    line-height: 130%; 
+    color: #CDCDCD; 
+}
+
+.win-small-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFFFFF;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.win-buttons-layout { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 16px; 
+}
+
+.win-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 384px;
+    height: 80px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btn-yellow { 
+    background: #FDBA01; 
+}
+.btn-yellow:hover { 
+    background: #e5a700; 
+}
+
+.btn-reverse {
+    background: #161616;
+    border: 1.5px solid #FDBA01;
+}
+.btn-reverse:hover { 
+    background: rgba(253, 186, 1, 0.08); 
+}
+
+.win-btn-text { 
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; 
+    font-size: 26px; 
+    color: #161616; 
+}
+
+.btn-reverse .win-btn-text { 
+    color: #FDBA01; 
+}
+
+.win-btn:active { 
+    transform: scale(0.98); 
+}
+
+.screen-content-right { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+/* РАМКА ДЛЯ ФОТО */
+.photo-card-wrapper {
+    position: relative;
+    width: 857px;
+    height: 574px;
+    border: 14px solid #FFFFFF;
+    border-radius: 30px;
+    transform: rotate(-5.25deg);
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0px 14px 40px rgba(0, 0, 0, 0.5);
+    background: #222;
+}
+
+.win-safe-photo { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    display: block; 
+}
+
+.sniper-game-area {
+    position: relative;
+    left: -30%;
+    width: 80%;
+    top: -170px;
+}
+
+.sniper-game-area canvas {
+    margin-left: 0;
+}

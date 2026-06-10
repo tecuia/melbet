@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мелбет - Пробей штрафной</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="bombardier.css">
+</head>
+<body>
+
+    <main class="game-container">
+        <div class="top-gradient"></div>
+
+        <div class="game-content">
+            <h1 class="game-title">Пробей штрафной</h1>
+            <p class="game-subtitle">Рассчитай направление и силу удара, чтобы попасть в ворота</p>
+        </div>
+
+        <div class="scale-container">
+            <div class="scale-arrow" id="scaleArrow"></div>
+            <div class="scale-bar"></div>
+        </div>
+        
+        <a class="game-btn" id="letsGoBtn" style="text-decoration: none; cursor: pointer;">
+            <span class="btn-text" id="btnText">Поехали</span>
+        </a>
+    </main>
+
+    <div class="screen-overlay" id="winScreen">
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Точно в цель!</h2>
+                <p class="win-subtitle">Ты повторил легендарный удар <br> Роналдиньо в матче Бразилия — Англия <br> на ЧМ-2002: мяч с дальнего штрафного <br> перелетел вратаря и оказался в воротах</p>
+                <p class="win-small-text">Тебе доступен бонус</p>
+            </div>
+            <div class="win-buttons-layout">
+                <a href="index.html?final=true" class="win-btn btn-yellow" style="text-decoration: none;">
+                    <span class="win-btn-text">Забрать бонус</span>
+                </a>
+                <a href="challenge.html" class="win-btn btn-reverse" style="text-decoration: none;">
+                    <span class="win-btn-text">Выбрать испытание</span>
+                </a>
+            </div>
+        </div>
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/goal.png" alt="Гол" class="win-safe-photo">
+            </div>
+        </div>
+    </div>
+
+    <div class="screen-overlay" id="loseScreen">
+        <div class="screen-content-left">
+            <div class="win-title-body">
+                <h2 class="win-title">Не попал</h2>
+                <p class="win-subtitle">Удар был близко, но точности не хватило. <br> Попробуй ещё раз или выбери другое <br> испытание</p>
+            </div>
+            <div class="win-buttons-layout">
+                <a href="bombardier.html" class="win-btn btn-yellow" style="text-decoration: none;">
+                    <span class="win-btn-text">Попробовать заново</span>
+                </a>
+                <a href="challenge.html" class="win-btn btn-reverse" style="text-decoration: none;">
+                    <span class="win-btn-text">Другое испытание</span>
+                </a>
+            </div>
+        </div>
+        <div class="screen-content-right">
+            <div class="photo-card-wrapper">
+                <img src="./imgs/block.png" alt="Промах" class="win-safe-photo">
+            </div>
+        </div>
+    </div>
+
+    <script src="bombardier.js"></script>
+</body>
+</html>
