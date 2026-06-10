@@ -11,9 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let progress = 0;
     const ballRadius = 12;
-    let speed = 0.003;
+    let speed = 0.001;
     
     let startX, startY, endX, endY;
+    
+    // Зона победы (в конце траектории)
+    const winZoneStart = 0.92;  
+    const winZoneEnd = 1.0;      
     
     function setupCanvas() {
         if (!gameArea) return;
@@ -35,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         startX = 5;
         startY = 200;
-        endX = canvas.width - 50; 
+        endX = canvas.width - 50;
         endY = 230;
         
         drawField();
@@ -53,6 +57,38 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = '#FDBA01';
         ctx.lineWidth = 2;
         ctx.setLineDash([8, 12]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        const tStart = winZoneStart;
+        const tEnd = winZoneEnd;
+        
+        const controlX = canvas.width / 4;
+        const controlY = 100;
+        
+        const startZoneX = Math.pow(1 - tStart, 2) * startX + 2 * (1 - tStart) * tStart * controlX + Math.pow(tStart, 2) * endX;
+        const startZoneY = Math.pow(1 - tStart, 2) * startY + 2 * (1 - tStart) * tStart * controlY + Math.pow(tStart, 2) * endY;
+        
+        const endZoneX = Math.pow(1 - tEnd, 2) * startX + 2 * (1 - tEnd) * tEnd * controlX + Math.pow(tEnd, 2) * endX;
+        const endZoneY = Math.pow(1 - tEnd, 2) * startY + 2 * (1 - tEnd) * tEnd * controlY + Math.pow(tEnd, 2) * endY;
+        
+        // Рисуем жирную точку/круг в зоне победы
+        ctx.beginPath();
+        ctx.arc(endZoneX, endZoneY, ballRadius + 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(253, 186, 1, 0.3)';
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(endZoneX, endZoneY, ballRadius + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(253, 186, 1, 0.5)';
+        ctx.fill();
+        
+        // Обводка зоны
+        ctx.beginPath();
+        ctx.arc(endZoneX, endZoneY, ballRadius + 10, 0, Math.PI * 2);
+        ctx.strokeStyle = '#FDBA01';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
         ctx.stroke();
         ctx.setLineDash([]);
     }
@@ -79,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.arc(pos.x, pos.y, ballRadius, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF';
         ctx.fill();
+        ctx.shadowBlur = 0;
     }
     
     function animateBall() {
@@ -93,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelAnimationFrame(animationId);
             drawBall();
             
+            // Если мяч долетел до конца и игрок не нажал - победа
             if (winScreen) {
                 winScreen.classList.add('is-active');
             }
@@ -113,8 +151,20 @@ document.addEventListener('DOMContentLoaded', () => {
         gameActive = false;
         cancelAnimationFrame(animationId);
         
-        if (loseScreen) {
-            loseScreen.classList.add('is-active');
+        // Проверяем: попал ли мяч в зону победы?
+        const isInWinZone = (progress >= winZoneStart && progress <= winZoneEnd);
+        
+        if (isInWinZone) {
+            // ПОБЕДА
+            if (winScreen) {
+                winScreen.classList.add('is-active');
+            }
+            localStorage.setItem('sniperComplete', 'true');
+        } else {
+            // ПОРАЖЕНИЕ (нажал рано или поздно)
+            if (loseScreen) {
+                loseScreen.classList.add('is-active');
+            }
         }
         
         letsGoBtn.textContent = 'Поехали';
@@ -128,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isMoving = true;
         
         drawBall();
-        letsGoBtn.textContent = 'Поехали';
+        letsGoBtn.textContent = 'Ударить!';
         animateBall();
     }
     
