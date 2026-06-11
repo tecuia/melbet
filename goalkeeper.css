@@ -82,7 +82,7 @@ html, body {
     width: 554px;
     height: 215px;
     left: calc(50% - 554px / 2 + 22px); 
-    top: 165.4px; 
+    top: 190px; 
     z-index: 4;
 }
 
