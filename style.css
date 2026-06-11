@@ -71,6 +71,7 @@ html, body {
     width: 100%;
     max-width: 800px; 
     z-index: 2;
+    margin-bottom: 80px;
 }
 
 .promo-title {
@@ -105,6 +106,9 @@ html, body {
     transition: background-color 0.2s ease, transform 0.1s ease;
     z-index: 2;
     cursor: pointer;
+    position: relative;
+    bottom: auto;
+    bottom: 240px;
 }
 
 .promo-btn:hover { background-color: #e5a700; }
