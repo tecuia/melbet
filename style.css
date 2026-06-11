@@ -1,6 +1,3 @@
-/* ==========================================================================
-   1. БАЗОВЫЙ СБРОС И ОБЩИЕ СТИЛИ СТРАНИЦ
-   ========================================================================= */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -11,7 +8,7 @@ html, body {
     height: 100%;
     background-color: #000000;
     font-family: 'Montserrat', sans-serif;
-    overflow-x: hidden; 
+    overflow: hidden;
 }
 
 .btn-text {
@@ -22,75 +19,102 @@ html, body {
     line-height: 110%;
     text-align: center;
     color: #161616;
+    text-transform: none;
 }
 
-/* ==========================================================================
-   2. СТИЛИ ГЛАВНОГО ЭКРАНА PROMO 
-   ========================================================================= */
 .promo-container {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between; 
+    justify-content: flex-start;
     height: 100vh;
     width: 100%;
     padding: 60px 40px 60px 160px; 
     overflow: hidden;
-    box-sizing: border-box;
-    background-image: url('./imgs/back.png'); 
+    background-image: url('./imgs/back.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 }
 
-@media (max-width: 1400px) {
-    .promo-container {
-        padding: 50px 40px 50px 80px;
-    }
+.promo-container.is-final {
+    background-image: url('./imgs/final.png');
+}
+
+.dark-filter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
 }
 
 .promo-header {
-    width: 100%;
-    max-width: 1280px;
-    display: flex;
-    align-items: center;
+    position: relative;
     z-index: 2;
+    margin-bottom: 140px;
 }
 
 .logo {
-    max-width: 100%;
     height: auto;
-    display: block;
+    max-width: 100%;
 }
 
 .promo-content {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    width: 100%;
-    max-width: 800px; 
+    position: relative;
     z-index: 2;
-    margin-bottom: 80px;
+    max-width: 1000px;
+    width: 100%;
 }
 
 .promo-title {
-    font-family: 'Futura', 'Arial Black', sans-serif;
-    font-size: 64px;
     font-weight: 700;
-    line-height: 110%;
+    font-size: 64px;
+    line-height: 105%;
     color: #FFFFFF;
+    margin-bottom: 24px;
+    max-width: 100%;
 }
 
 .promo-subtitle {
+    font-weight: 500;
     font-size: 24px;
-    line-height: 140%;
+    line-height: 130%;
     color: #FFFFFF;
     opacity: 0.9;
 }
 
-.highlight-text {
+.highlight-text, .highlight-yellow {
     color: #FDBA01;
+}
+
+.final-subtitles-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.final-bonus-heading {
+    font-weight: 700;
+    font-size: 56px;
+    line-height: 110%;
+    color: #FFFFFF;
+}
+
+.final-subtitle-desc {
+    font-size: 22px;
+}
+
+.promo-container:not(.is-final) .final-block {
+    display: none !important;
+}
+
+.promo-container.is-final .start-block {
+    display: none !important;
 }
 
 .promo-btn {
@@ -106,70 +130,39 @@ html, body {
     transition: background-color 0.2s ease, transform 0.1s ease;
     z-index: 2;
     cursor: pointer;
-    position: relative;
-    bottom: auto;
-    bottom: 240px;
+    margin-top: 40px;
 }
 
-.promo-btn:hover { background-color: #e5a700; }
-.promo-btn:not(:disabled):active { transform: scale(0.98); }
-
-.promo-container.is-final .start-block { display: none !important; }
-.promo-container:not(.is-final) .final-block { display: none !important; }
-
-.final-subtitles-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.promo-btn:hover {
+    background-color: #e5a700;
 }
 
-.final-bonus-heading {
-    font-size: 36px;
-    font-weight: 700;
-    color: #FFFFFF;
-}
-
-.highlight-yellow {
-    color: #FDBA01;
+.promo-btn:active {
+    transform: scale(0.98);
 }
 
 .legal-disclaimer {
-    font-size: 12px;
-    line-height: 140%;
-    color: rgba(255, 255, 255, 0.4);
-    width: 100%;
-    max-width: 1200px;
-    z-index: 2;
-    margin-top: auto; 
-}
-
-.promo-container .dark-filter {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 100%);
-    pointer-events: none;
-    z-index: 1;
+    bottom: 40px;
+    left: 160px;
+    right: 40px;
+    font-size: 11px;
+    line-height: 140%;
+    color: #FFFFFF;
+    opacity: 0.4;
+    z-index: 2;
 }
 
-
-/* ==========================================================================
-   3. СТИЛИ ЭКРАНА ВЫБОРА ИСПЫТАНИЙ 
-   ========================================================================= */
 .challenge-container {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    justify-content: center; 
+    align-items: center;
+    justify-content: center;
     height: 100vh;
     width: 100%;
-    padding: 40px;           
-    gap: 36px;               
+    padding: 40px;
     overflow: hidden;
-    box-sizing: border-box;
     background-image: url('./imgs/back1.png');
     background-size: 2192px 1233px;
     background-position: -136px bottom; 
@@ -199,19 +192,19 @@ html, body {
     align-items: center;
     gap: 18px;               
     width: 100%;
-    max-width: 1061px; 
-    height: auto;      
+    max-width: 1061px;
+    height: auto;
     min-height: 158px; 
-    margin-top: -35px; 
+    margin-top: -55px; 
     margin-bottom: 15px; 
-    flex-shrink: 0;    
+    flex-shrink: 0;
 }
 
 .challenge-title {
     font-family: 'Futura', 'Arial Black', sans-serif;
     font-style: normal;
     font-weight: 700;
-    font-size: 64px;         
+    font-size: 64px;
     line-height: 100%;
     text-align: center;
     color: #FFFFFF;
@@ -223,7 +216,7 @@ html, body {
     font-family: 'Montserrat', sans-serif;
     font-style: normal;
     font-weight: 500;
-    font-size: 28px;         
+    font-size: 28px;
     line-height: 130%;
     text-align: center;
     color: #FFFFFF; 
@@ -236,23 +229,19 @@ html, body {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 80px;               
-    width: 100%;
-    max-width: 1198px; 
-    height: auto;
-    min-height: 464px;
+    gap: 80px; 
+    width: 1198px;
+    height: 464px;
 }
 
 .challenge-card {
-    width: 100%;
-    max-width: 346px;  
-    height: 464px;           
-    border-radius: 18px;     
+    width: 346px;
+    height: 464px;
+    border-radius: 18px;
     overflow: hidden; 
     cursor: pointer;
     background-color: #000000; 
     transition: transform 0.25s ease;
-    flex-shrink: 0;    
 }
 
 .card-img {
@@ -273,15 +262,15 @@ html, body {
     align-items: center;
     padding: 12px 32px 14px 32px;
     gap: 10px;
-    width: 100%;
-    max-width: 432px;  
-    height: 90px;            
+    width: 432px;
+    height: 90px;
     background: #FDBA01;
     border-radius: 11px;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    flex-shrink: 0;    
+    flex-shrink: 0; 
+    margin-top: 35px;
 }
 
 .challenge-btn .btn-text {

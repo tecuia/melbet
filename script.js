@@ -26,9 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         claimBonusBtn.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Клик по кнопке забрать бонус. Сбрасываем прогресс игр для нового круга...');
+            
             localStorage.removeItem('goalkeeper_completed');
             localStorage.removeItem('bombardierComplete');
             localStorage.removeItem('sniperComplete');
+
+            window.location.href = 'https://tracker.partnersmelbet.ru/link?btag=95908025_498565';
         });
     }
 
