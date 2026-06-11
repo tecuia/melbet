@@ -52,19 +52,20 @@ html, body {
 
 .game-title {
     font-weight: 700;
-    font-size: 64px;
-    line-height: 110%;
+    font-size: 62px;
+    line-height: 100%;
     text-align: center;
     color: #FFFFFF;
 }
 
 .game-subtitle {
     font-weight: 500;
-    font-size: 24px;
+    font-size: 28px;
     line-height: 130%;
     text-align: center;
-    color: #CDCDCD;
-    max-width: 800px;
+    color: #FFFFFF;
+    max-width: 1000px;
+    white-space: nowrap;
 }
 
 .sniper-game-area {
