@@ -1308,7 +1308,6 @@ game-content {
     .card-title {
         font-size: 20px;
         line-height: 1.2;
-        text-transform: uppercase;
     }
 
     .card-description {
@@ -1391,6 +1390,7 @@ game-content {
     font-size: 34px;
     margin-bottom: 12px;
     text-transform: uppercase !important;
+    white-space: nowrap;
 }
 
 .game-subtitle {
