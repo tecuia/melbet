@@ -1306,8 +1306,9 @@ game-content {
     }
 
     .card-title {
-        font-size: 20px;       
+        font-size: 20px;
         line-height: 1.2;
+        text-transform: uppercase;
     }
 
     .card-description {
@@ -1382,13 +1383,13 @@ game-content {
 }
 
 .game-content {
-    margin-top:190px;           
+    margin-top:90px;           
     flex-shrink: 0;
 }
 
 .game-title {
     font-size: 34px;
-    margin-bottom: 0.1em;
+    margin-bottom: 12px;
 }
 
 .game-subtitle {
@@ -1397,7 +1398,7 @@ game-content {
 }
 
 .game-iframe-wrapper {
-    margin-top: -210px;          
+    margin-top: -110px;          
     width: 100%;
     display: flex;
     align-items: center;
