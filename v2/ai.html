@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>index</title>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script src="index.js"></script>
+<script>
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	var comp=AdobeAn.getComposition("C2FF4C35834A4122BCF87252FB971D31");
+	var lib=comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt){handleFileLoad(evt,comp)});
+	loader.addEventListener("complete", function(evt){handleComplete(evt,comp) });
+	var lib=comp.getLibrary();
+	loader.loadManifest(lib.properties.manifest);
+}
+function handleFileLoad(evt, comp) {
+	var images=comp.getImages();	
+	if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }	
+}
+function handleComplete(evt,comp) {
+	var lib=comp.getLibrary();
+	var ss=comp.getSpriteSheet();
+	var queue = evt.target;
+	var ssMetadata = lib.ssMetadata;
+	for(i=0; i<ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
+	}
+	exportRoot = new lib.index();
+	stage = new lib.Stage(canvas);
+	stage.enableMouseOver();
+	fnStartAnimation = function() {
+		stage.addChild(exportRoot);
+		createjs.Ticker.framerate = lib.properties.fps;
+		createjs.Ticker.addEventListener("tick", stage);
+	}	    
+	AdobeAn.makeResponsive(false,'both',false,1,[canvas,anim_container,dom_overlay_container]);	
+	AdobeAn.compositionLoaded(lib.properties.id);
+	fnStartAnimation();
+	
+	// Инициализация менеджера анимаций
+	if (window.animationManager) {
+		window.animationManager.init();
+		window.animationManager.startAnimation(3);
+	}
+}
+</script>
+
+<script>
+// ========== КЛАСС УПРАВЛЕНИЯ АНИМАЦИЯМИ ==========
+
+class AnimationManager {
+	constructor() {
+		// Конфигурации анимаций
+		this.animations = {
+			3: {
+				id: 3,
+				name: 'Пробить',
+				hasTrajectory: true,
+				videos: {
+					intro: 'video1',
+					results: {
+						'1_1': 'video2_2',
+						'1_2': 'video2_1',
+						'1_3': 'video2_1',
+						'2_1': 'video3_1',
+						'2_2': 'video3_2',
+						'2_3': 'video3_3',
+						'3_1': 'video4_1',
+						'3_2': 'video4_2',
+						'3_3': 'video4_3'
+					}
+				},
+				// Параметры треугольника для анимации 3
+				triangle: {
+					rotation: Math.PI / 5,
+					heightRatio: 1,
+					apexAngle: 100 * Math.PI / 180,
+					zoneProportions: {
+						left: 0.45,
+						center: 0.25,
+						right: 0.30
+					}
+				}
+			}
+		};
+		
+		// Текущая активная анимация
+		this.currentAnimationId = null;
+		this.currentConfig = null;
+		
+		// Состояние игры
+		this.GAME_STATE = {
+			IDLE: 'idle',
+			INTRO: 'intro',
+			TRAJECTORY: 'trajectory',
+			POWER: 'power',
+			RESULT: 'result'
+		};
+		this.gameState = this.GAME_STATE.IDLE;
+		
+		// Глобальные переменные игры
+		window.act1 = 0;
+		window.tr = 1;
+		window.poz = 1;
+		
+		// Таймер
+		this.trajectoryTimer = null;
+		this.trajectoryTimeLeft = 5;
+		this.trajectorySelected = false;
+		
+		// Холст для рисования
+		this.drawCanvas = null;
+		this.drawCtx = null;
+		this.isDrawing = false;
+		this.drawPoints = [];
+		this.drawingEnabled = false;
+		
+		// Геометрия треугольника
+		this.cx = 0;
+		this.cy = 0;
+		this.H = 0;
+		this.W = 0;
+		this.canvasWidth = 0;
+		this.canvasHeight = 0;
+		this.zoneBoundaries = { leftThird: 0, rightThird: 0 };
+		
+		// Инициализация
+		// this.createUI();
+		this.bindEvents();
+	}
+	
+	// ========== СОЗДАНИЕ UI ==========
+	
+	createUI() {
+		// Создаем контейнер для кнопок
+		var buttonContainer = document.createElement('div');
+		buttonContainer.id = 'animationButtons';
+		
+		// Создаем кнопки для каждой анимации
+		for (var id in this.animations) {
+			var config = this.animations[id];
+			var button = document.createElement('button');
+			button.textContent = config.name;
+			button.dataset.animationId = id;
+			button.classList.add('game-btn')
+			
+			button.addEventListener('click', (function(animId) {
+				return function() {
+					button.classList.add('hidden');
+				};
+			})(id));
+			
+			buttonContainer.appendChild(button);
+		}
+		
+		document.body.appendChild(buttonContainer);
+	}
+	
+	// ========== ПРИВЯЗКА СОБЫТИЙ ==========
+	
+	bindEvents() {
+		window.addEventListener('resize', () => {
+			this.resizeContainer();
+			if (this.drawingEnabled) {
+				this.updateDrawGeometry();
+			}
+		});
+	}
+	
+	// ========== ИНИЦИАЛИЗАЦИЯ ==========
+	
+	init() {
+		console.log('🔧 AnimationManager инициализирован');
+		this.initDrawCanvas();
+		this.resizeContainer();
+		this.setupVideoEndHandlers();
+		this.setupFrameTracking();
+		
+		if (exportRoot) {
+			exportRoot.gotoAndStop(0);
+		}
+		
+		var mainCanvas = document.getElementById('canvas');
+		if (mainCanvas) {
+			mainCanvas.addEventListener('click', (e) => {
+				this.handleCanvasClick(e);
+			});
+		}
+		
+		console.log('✅ Доступные анимации:');
+		for (var id in this.animations) {
+			console.log('  ' + id + ': ' + this.animations[id].name + 
+				(this.animations[id].hasTrajectory ? ' (с траекторией)' : ''));
+		}
+	}
+	
+	// ========== ЗАПУСК АНИМАЦИИ ==========
+	
+	startAnimation(animationId) {
+		animationId = parseInt(animationId);
+		
+		if (!this.animations[animationId]) {
+			console.error('❌ Анимация с ID ' + animationId + ' не найдена');
+			return;
+		}
+		
+		console.log('🚀 Запуск анимации ' + animationId + ': ' + this.animations[animationId].name);
+		
+		// Сбрасываем текущее состояние
+		this.resetGame();
+		
+		// Устанавливаем текущую анимацию
+		this.currentAnimationId = animationId;
+		this.currentConfig = this.animations[animationId];
+		
+		// Подсвечиваем активную кнопку
+		this.highlightActiveButton();
+		
+		// Устанавливаем начальные значения
+		window.act1 = 0;
+		window.tr = 1;
+		window.poz = 1;
+		this.trajectorySelected = false;
+		
+		// Запускаем
+		this.gameState = this.GAME_STATE.INTRO;
+		
+		if (exportRoot) {
+			exportRoot.play();
+		}
+		
+		this.showIntroVideo();
+		
+		console.log('✅ Анимация ' + animationId + ' запущена');
+	}
+	
+	highlightActiveButton() {
+		var buttons = document.querySelectorAll('#animationButtons button');
+		buttons.forEach(function(button) {
+			var buttonAnimId = parseInt(button.dataset.animationId);
+			if (buttonAnimId === window.animationManager.currentAnimationId) {
+				button.style.background = '#FDBA01';
+				button.style.color = '#000';
+			} else {
+				button.style.background = 'rgba(0, 0, 0, 0.7)';
+				button.style.color = '#FDBA01';
+			}
+		});
+	}
+	
+	// ========== ОБРАБОТЧИК КЛИКОВ ==========
+	
+	handleCanvasClick(e) {
+		console.log('🖱 Клик по canvas, состояние: ' + this.gameState);
+		
+		if (this.gameState === this.GAME_STATE.IDLE) {
+
+					button.classList.add('hidden');
+			// Запускаем анимацию 3 по умолчанию
+			this.startAnimation(3);
+			
+		} else if (this.gameState === this.GAME_STATE.POWER) {
+			this.selectPower();
+		} else if (this.gameState === this.GAME_STATE.RESULT) {
+			this.resetGame();
+		}
+	}
+	
+	// ========== УПРАВЛЕНИЕ ВИДЕО ==========
+	
+	hideAllVideos() {
+		document.querySelectorAll('.video-block').forEach(function(block) {
+			block.classList.remove('show');
+			block.style.display = 'none';
+			var video = block.querySelector('video');
+			if (video) {
+				video.pause();
+				video.currentTime = 0;
+			}
+		});
+	}
+	
+	showVideo(blockId) {
+		var block = document.getElementById(blockId);
+		if (!block) return;
+		block.style.display = 'block';
+		block.classList.add('show');
+	}
+	
+	playVideo(blockId) {
+		var block = document.getElementById(blockId);
+		if (!block) return;
+		
+		var video = block.querySelector('video');
+		if (!video) return;
+		
+		video.currentTime = 0;
+		video.play().catch(function(e) {
+			console.log('Ошибка воспроизведения ' + blockId + ':', e);
+		});
+		
+		console.log('▶ Воспроизведение: ' + blockId);
+	}
+	
+	showIntroVideo() {
+		this.hideAllVideos();
+		if (this.currentConfig && this.currentConfig.videos.intro) {
+			this.showVideo(this.currentConfig.videos.intro);
+			this.playVideo(this.currentConfig.videos.intro);
+		}
+	}
+	
+	playResultVideo() {
+		var tr = window.tr || 1;
+		var poz = window.poz || 1;
+		var key = tr + '_' + poz;
+		
+		console.log('🎯 Определение видео: tr=' + tr + ', poz=' + poz + ', key=' + key);
+		
+		this.hideAllVideos();
+		
+		if (this.currentConfig && this.currentConfig.videos.results[key]) {
+			var videoId = this.currentConfig.videos.results[key];
+			this.showVideo(videoId);
+			this.playVideo(videoId);
+		} else {
+			console.error('❌ Нет видео для key=' + key);
+		}
+	}
+	
+	// ========== ФУНКЦИИ ДЛЯ ВЫЗОВА ИЗ ADOBE ANIMATE ==========
+	
+	getVideoFunctions() {
+		var self = this;
+		return {
+			vShow1: function() { self.showIntroVideo(); },
+			vShow2_1: function() { self.hideAllVideos(); self.showVideo('video2_1'); self.playVideo('video2_1'); },
+			vShow2_2: function() { self.hideAllVideos(); self.showVideo('video2_2'); self.playVideo('video2_2'); },
+			vShow3_1: function() { self.hideAllVideos(); self.showVideo('video3_1'); self.playVideo('video3_1'); },
+			vShow3_2: function() { self.hideAllVideos(); self.showVideo('video3_2'); self.playVideo('video3_2'); },
+			vShow3_3: function() { self.hideAllVideos(); self.showVideo('video3_3'); self.playVideo('video3_3'); },
+			vShow4_1: function() { self.hideAllVideos(); self.showVideo('video4_1'); self.playVideo('video4_1'); },
+			vShow4_2: function() { self.hideAllVideos(); self.showVideo('video4_2'); self.playVideo('video4_2'); },
+			vShow4_3: function() { self.hideAllVideos(); self.showVideo('video4_3'); self.playVideo('video4_3'); }
+		};
+	}
+	
+	// ========== РИСОВАНИЕ ТРАЕКТОРИИ (только для анимации 3) ==========
+	
+	initDrawCanvas() {
+		this.drawCanvas = document.createElement('canvas');
+		this.drawCanvas.style.cssText = `
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1000;
+			pointer-events: auto;
+			display: none;
+		`;
+		this.drawCanvas.id = 'drawCanvas';
+		
+		var container = document.getElementById('animation_container');
+		if (container) {
+			container.appendChild(this.drawCanvas);
+		}
+		
+		this.drawCtx = this.drawCanvas.getContext('2d');
+		
+		this.drawCanvas.addEventListener('mousedown', (e) => this.handleDrawMouseDown(e));
+		this.drawCanvas.addEventListener('touchstart', (e) => this.handleDrawTouchStart(e), { passive: false });
+		window.addEventListener('mousemove', (e) => this.handleDrawMouseMove(e));
+		window.addEventListener('touchmove', (e) => this.handleDrawTouchMove(e), { passive: false });
+		window.addEventListener('mouseup', (e) => this.handleDrawMouseUp(e));
+		window.addEventListener('touchend', (e) => this.handleDrawTouchEnd(e));
+	}
+	
+	updateDrawGeometry() {
+		if (!this.drawCanvas) return;
+		
+		var container = document.getElementById('animation_container');
+		if (!container) return;
+		
+		this.canvasWidth = container.offsetWidth;
+		this.canvasHeight = container.offsetHeight;
+		this.drawCanvas.width = this.canvasWidth;
+		this.drawCanvas.height = this.canvasHeight;
+		
+		this.cx = this.canvasWidth / 2;
+		this.cy = this.canvasHeight * 0.55;
+		
+		if (this.currentConfig && this.currentConfig.triangle) {
+			var tri = this.currentConfig.triangle;
+			var BASE_RATIO = 2 * Math.tan(tri.apexAngle / 2);
+			this.H = Math.min(this.canvasWidth, this.canvasHeight) * tri.heightRatio;
+			this.W = this.H * BASE_RATIO;
+			
+			this.zoneBoundaries.leftThird = -this.W/2 + this.W * tri.zoneProportions.left;
+			this.zoneBoundaries.rightThird = this.zoneBoundaries.leftThird + this.W * tri.zoneProportions.center;
+		}
+		
+		this.redrawTriangle();
+	}
+	
+	worldToLocal(wx, wy) {
+		var rotation = (this.currentConfig && this.currentConfig.triangle) ? this.currentConfig.triangle.rotation : Math.PI / 6;
+		var dx = wx - this.cx;
+		var dy = wy - this.cy;
+		var cos = Math.cos(-rotation);
+		var sin = Math.sin(-rotation);
+		return {
+			x: dx * cos - dy * sin,
+			y: dx * sin + dy * cos
+		};
+	}
+	
+	isInsideTriangle(localX, localY) {
+		if (localY < -this.H/2 || localY > this.H/2) return false;
+		var t = (localY + this.H/2) / this.H;
+		var halfWidth = (this.W / 2) * (1 - t);
+		return Math.abs(localX) <= halfWidth;
+	}
+	
+	getZone(localX, localY) {
+		if (localX <= this.zoneBoundaries.leftThird) return 'Лево';
+		if (localX <= this.zoneBoundaries.rightThird) return 'Центр';
+		return 'Право';
+	}
+	
+	zoneToNumber(zone) {
+		if (zone === 'Лево') return 1;
+		if (zone === 'Центр') return 2;
+		if (zone === 'Право') return 3;
+		return 1;
+	}
+	
+	redrawTriangle() {
+		if (!this.drawCtx) return;
+		
+		this.drawCtx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		
+		// Полностью прозрачный треугольник - рисуем только траекторию
+		this.drawTrajectoryPath();
+	}
+	
+	drawTrajectoryPath() {
+		if (!this.drawCtx || this.drawPoints.length < 2) return;
+		
+		this.drawCtx.save();
+		this.drawCtx.beginPath();
+		this.drawCtx.moveTo(this.drawPoints[0].x, this.drawPoints[0].y);
+		for (var i = 1; i < this.drawPoints.length; i++) {
+			this.drawCtx.lineTo(this.drawPoints[i].x, this.drawPoints[i].y);
+		}
+		this.drawCtx.strokeStyle = '#FDBA01';
+		this.drawCtx.lineWidth = Math.max(3, this.W * 0.015);
+		this.drawCtx.lineCap = 'round';
+		this.drawCtx.lineJoin = 'round';
+		this.drawCtx.shadowColor = '#FDBA01';
+		this.drawCtx.shadowBlur = 10;
+		this.drawCtx.stroke();
+		
+		if (this.drawPoints.length > 0) {
+			var lastPoint = this.drawPoints[this.drawPoints.length - 1];
+			var local = this.worldToLocal(lastPoint.x, lastPoint.y);
+			var zone = this.getZone(local.x, local.y);
+			var glowColor = '#FDBA01';
+			if (zone === 'Лево') glowColor = '#FF6464';
+			else if (zone === 'Центр') glowColor = '#64FF64';
+			else if (zone === 'Право') glowColor = '#6464FF';
+			
+			this.drawCtx.beginPath();
+			this.drawCtx.arc(lastPoint.x, lastPoint.y, Math.max(6, this.W * 0.025), 0, Math.PI * 2);
+			this.drawCtx.fillStyle = '#FFFFFF';
+			this.drawCtx.fill();
+			this.drawCtx.strokeStyle = glowColor;
+			this.drawCtx.lineWidth = 3;
+			this.drawCtx.shadowColor = glowColor;
+			this.drawCtx.shadowBlur = 15;
+			this.drawCtx.stroke();
+		}
+		
+		this.drawCtx.restore();
+	}
+	
+	enableDrawing() {
+		if (!this.drawCanvas) this.initDrawCanvas();
+		
+		this.drawingEnabled = true;
+		this.drawCanvas.style.display = 'block';
+		this.drawPoints = [];
+		this.updateDrawGeometry();
+		console.log('✏ Рисование траектории включено');
+	}
+	
+	disableDrawing() {
+		this.drawingEnabled = false;
+		this.isDrawing = false;
+		this.drawPoints = [];
+		
+		if (this.drawCanvas) {
+			this.drawCanvas.style.display = 'none';
+			if (this.drawCtx) {
+				this.drawCtx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+			}
+		}
+		
+		console.log('✏ Рисование траектории выключено');
+	}
+	
+	// Обработчики мыши
+	handleDrawMouseDown(e) {
+		if (!this.drawingEnabled || this.gameState !== this.GAME_STATE.TRAJECTORY) return;
+		if (e.button !== 0) return;
+		e.preventDefault();
+		e.stopPropagation();
+		this.startDrawing(e.clientX, e.clientY);
+	}
+	
+	handleDrawMouseMove(e) {
+		if (!this.isDrawing || !this.drawingEnabled) return;
+		e.preventDefault();
+		this.continueDrawing(e.clientX, e.clientY);
+	}
+	
+	handleDrawMouseUp(e) {
+		if (!this.isDrawing || !this.drawingEnabled) return;
+		e.preventDefault();
+		this.endDrawing();
+	}
+	
+	// Обработчики touch
+	handleDrawTouchStart(e) {
+		if (!this.drawingEnabled || this.gameState !== this.GAME_STATE.TRAJECTORY) return;
+		e.preventDefault();
+		e.stopPropagation();
+		var touch = e.touches[0];
+		this.startDrawing(touch.clientX, touch.clientY);
+	}
+	
+	handleDrawTouchMove(e) {
+		if (!this.isDrawing || !this.drawingEnabled) return;
+		e.preventDefault();
+		var touch = e.touches[0];
+		this.continueDrawing(touch.clientX, touch.clientY);
+	}
+	
+	handleDrawTouchEnd(e) {
+		if (!this.isDrawing || !this.drawingEnabled) return;
+		e.preventDefault();
+		this.endDrawing();
+	}
+	
+	startDrawing(clientX, clientY) {
+		var rect = this.drawCanvas.getBoundingClientRect();
+		var mx = clientX - rect.left;
+		var my = clientY - rect.top;
+		var local = this.worldToLocal(mx, my);
+		
+		if (this.isInsideTriangle(local.x, local.y)) {
+			this.isDrawing = true;
+			this.drawPoints = [{ x: mx, y: my }];
+			this.redrawTriangle();
+		}
+	}
+	
+	continueDrawing(clientX, clientY) {
+		var rect = this.drawCanvas.getBoundingClientRect();
+		var mx = clientX - rect.left;
+		var my = clientY - rect.top;
+		var local = this.worldToLocal(mx, my);
+		
+		if (this.isInsideTriangle(local.x, local.y)) {
+			this.drawPoints.push({ x: mx, y: my });
+			this.redrawTriangle();
+		}
+	}
+	
+	endDrawing() {
+		this.isDrawing = false;
+		
+		if (this.drawPoints.length > 1 && this.gameState === this.GAME_STATE.TRAJECTORY) {
+			var lastPoint = this.drawPoints[this.drawPoints.length - 1];
+			var local = this.worldToLocal(lastPoint.x, lastPoint.y);
+			var zone = this.getZone(local.x, local.y);
+			var trajectoryNumber = this.zoneToNumber(zone);
+			
+			console.log('🎯 Траектория нарисована: ' + zone + ' (' + trajectoryNumber + ')');
+			
+			this.selectTrajectory(trajectoryNumber);
+			this.disableDrawing();
+		}
+	}
+	
+	// ========== ИГРОВАЯ ЛОГИКА ==========
+	
+	selectTrajectory(value) {
+		if (this.gameState !== this.GAME_STATE.TRAJECTORY) return;
+		if (this.trajectorySelected) return;
+		
+		console.log('🎯 Выбрана траектория: ' + value);
+		
+		this.trajectorySelected = true;
+		window.tr = value;
+		
+		clearInterval(this.trajectoryTimer);
+		this.disableDrawing();
+		
+		this.gameState = this.GAME_STATE.POWER;
+		if (exportRoot) exportRoot.play();
+		
+		console.log('▶ Переход к выбору силы');
+	}
+	
+	selectPower() {
+		if (this.gameState !== this.GAME_STATE.POWER) return;
+		
+		console.log('⚡ Фиксация силы: ' + window.poz);
+		
+		if (exportRoot && exportRoot.instance_1) {
+			exportRoot.instance_1.stop();
+			console.log('🛑 Шкала силы остановлена на poz=' + window.poz);
+		}
+		
+		this.gameState = this.GAME_STATE.RESULT;
+		this.playResultVideo();
+		if (exportRoot) exportRoot.play();
+		
+		console.log('▶ Показ результата');
+		
+
+		setTimeout(() => {
+			// this.dispatchMechanicEnd(true);
+		}, 500)
+	}
+	
+
+	dispatchMechanicEnd(success) {
+		// Создаем кастомное событие с данными
+		const event = new CustomEvent('mechanicEnd', {
+			detail: {
+				success: success,
+				timestamp: Date.now()
+			}
+		});
+		
+		// Отправляем событие в родительское окно
+		if (window.parent && window.parent !== window) {
+			window.parent.document.dispatchEvent(event);
+			console.log('📤 Событие mechanicEnd отправлено в родительское окно. success:', success);
+		} else {
+			console.warn('⚠ Родительское окно не найдено');
+		}
+	}
+
+	resetGame() {
+		console.log('🔄 Сброс игры');
+		
+		clearInterval(this.trajectoryTimer);
+		this.disableDrawing();
+		this.hideAllVideos();
+		
+		if (exportRoot) {
+			exportRoot.gotoAndStop(0);
+		}
+		
+		window.act1 = 0;
+		window.tr = 1;
+		window.poz = 1;
+		this.trajectorySelected = false;
+		this.gameState = this.GAME_STATE.IDLE;
+		this.currentAnimationId = null;
+		this.currentConfig = null;
+		
+		// Сбрасываем подсветку кнопок
+		var buttons = document.querySelectorAll('#animationButtons button');
+		buttons.forEach(function(button) {
+			button.style.background = 'rgba(0, 0, 0, 0.7)';
+			button.style.color = '#FDBA01';
+		});
+		
+		console.log('✅ Игра сброшена');
+	}
+	
+	// ========== ОТСЛЕЖИВАНИЕ КАДРОВ ==========
+	
+	setupFrameTracking() {
+		if (!exportRoot) return;
+		
+		createjs.Ticker.addEventListener('tick', () => {
+			if (!exportRoot) return;
+			
+			var currentFrame = Math.floor(exportRoot.currentFrame);
+			
+			if (currentFrame === 9 && this.gameState === this.GAME_STATE.INTRO) {
+				console.log('⏸ Кадр 9: пауза');
+				
+				if (this.currentConfig && this.currentConfig.hasTrajectory) {
+					// Анимация с траекторией
+					this.gameState = this.GAME_STATE.TRAJECTORY;
+					exportRoot.stop();
+					this.enableDrawing();
+				} else {
+					// Анимация без траектории - автоматический выбор
+					this.gameState = this.GAME_STATE.POWER;
+					exportRoot.stop();
+					// Автоматически выбираем траекторию 1
+					this.trajectorySelected = true;
+					window.tr = 1;
+					setTimeout(() => {
+						exportRoot.play();
+					}, 500);
+				}
+			}
+			
+			if (currentFrame === 10 && this.gameState === this.GAME_STATE.POWER) {
+				console.log('⏸ Кадр 10: пауза для выбора силы');
+				exportRoot.stop();
+			}
+		});
+	}
+	
+	// ========== ОБРАБОТЧИКИ ВИДЕО ==========
+	
+	setupVideoEndHandlers() {
+		var videoIds = ['video1', 'video2_1', 'video2_2', 'video3_1', 'video3_2', 'video3_3', 'video4_1', 'video4_2', 'video4_3'];
+		
+		videoIds.forEach((videoId) => {
+			var block = document.getElementById(videoId);
+			if (!block) return;
+			
+			var video = block.querySelector('video');
+			if (!video) return;
+			
+			video.addEventListener('ended', () => {
+				video.pause();
+				console.log('🏁 Событие ended для: ' + videoId);
+				
+				if (videoId === 'video1') {
+					window.act1 = 1;
+				} else if(videoId === 'video2_2') {
+
+					setTimeout(() => {
+						this.dispatchMechanicEnd(true);
+					}, 100)
+				} else {
+
+					setTimeout(() => {
+						this.dispatchMechanicEnd(false);
+					}, 100)
+				}
+
+			});
+		});
+	}
+	
+	// ========== АДАПТИВНОСТЬ ==========
+	
+	resizeContainer() {
+		var container = document.getElementById('animation_container');
+		if (!container) return;
+		
+		var windowWidth = window.innerWidth;
+		var windowHeight = window.innerHeight;
+		var aspectRatio = 850 / 480;
+		
+		var newWidth, newHeight;
+		
+		if (windowWidth / windowHeight > aspectRatio) {
+			newHeight = windowHeight;
+			newWidth = newHeight * aspectRatio;
+		} else {
+			newWidth = windowWidth;
+			newHeight = newWidth / aspectRatio;
+		}
+		
+		container.style.width = newWidth + 'px';
+		container.style.height = newHeight + 'px';
+		
+		if (this.drawCanvas && this.drawingEnabled) {
+			this.updateDrawGeometry();
+		}
+	}
+}
+
+window.addEventListener('load', e => {
+
+// ========== СОЗДАНИЕ ЭКЗЕМПЛЯРА ==========
+
+window.animationManager = new AnimationManager();
+
+// Экспорт функций видео для Adobe Animate
+var videoFuncs = window.animationManager.getVideoFunctions();
+window.vShow1 = videoFuncs.vShow1;
+window.vShow2_1 = videoFuncs.vShow2_1;
+window.vShow2_2 = videoFuncs.vShow2_2;
+window.vShow3_1 = videoFuncs.vShow3_1;
+window.vShow3_2 = videoFuncs.vShow3_2;
+window.vShow3_3 = videoFuncs.vShow3_3;
+window.vShow4_1 = videoFuncs.vShow4_1;
+window.vShow4_2 = videoFuncs.vShow4_2;
+window.vShow4_3 = videoFuncs.vShow4_3;
+})
+
+</script>
+
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	
+	
+	html, body { width: 100%; height: 100dvh; overflow: hidden; background: #FDBA01; background-image: url(../imgs/back1.jpg);   background-size: cover; background-position: center;}
+	
+	body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	#animation_container {
+		position: relative;
+		background-color: rgba(0, 0, 0, 0.00);
+		overflow: hidden;
+	}
+	
+	#canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100% !important;
+		height: 100% !important;
+		background-color: transparent !important;
+		cursor: pointer;
+	}
+	
+	#dom_overlay_container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		overflow: hidden;
+	}
+	
+	.video-block {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+		display: none;
+	}
+	
+	.video-block.show {
+		opacity: 1;
+		display: block;
+	}
+	
+	.video-block video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+	
+	#drawCanvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		cursor: crosshair;
+		z-index: 1000;
+
+        transform: translate(-2%, -4%);
+	}
+
+
+	
+.game-btn {
+    position: absolute;
+    width: clamp(280px, 40vw, 480px);
+    height: clamp(60px, 10vh, 100px);
+    padding: 12px 32px 14px;
+    border: none;
+    border-radius: 12px;
+    background: #FDBA01;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.3s ease, opacity 0.3s ease;
+    z-index: 3;
+    margin: clamp(16px, 3vh, 40px) auto;
+    flex-shrink: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	margin: auto;
+}
+.game-btn:hover {
+    background-color: #e5a700;
+}
+.game-btn:active {
+    transform: scale(0.98);
+}
+.game-btn.disabled {
+    background: #2E2E2E;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #717171;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.game-btn.hidden {
+	opacity: 0;
+	transform: scale(1.1);
+	pointer-events: none;
+}
+</style>
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(0, 0, 0, 0.00); width:850px; height:480px">
+        
+		
+		
+		<div id="video1" class="video-block">
+			<video muted playsinline>
+				<source src="3_v1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video2_1" class="video-block">
+			<video muted playsinline>
+				<source src="3_v2_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video2_2" class="video-block">
+			<video muted playsinline>
+				<source src="3_v2_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_1" class="video-block">
+			<video muted playsinline>
+				<source src="3_v3_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_2" class="video-block">
+			<video muted playsinline>
+				<source src="3_v3_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_3" class="video-block">
+			<video muted playsinline>
+				<source src="3_v3_3.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_1" class="video-block">
+			<video muted playsinline>
+				<source src="3_v4_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_2" class="video-block">
+			<video muted playsinline>
+				<source src="3_v4_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_3" class="video-block">
+			<video muted playsinline>
+				<source src="3_v4_3.mp4" type="video/mp4" />
+			</video>
+		</div>
+
+		<canvas id="canvas" width="850" height="480" style="position: absolute; display: block; background-color:rgba(0, 0, 0, 0.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:850px; height:480px; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+		
+	</div>
+</body>
+</html>

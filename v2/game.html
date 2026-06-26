@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <style>
+        iframe {
+            position: fixed;
+            height: 100dvh;
+            width: 100dvw;
+            margin: auto;
+            border: none;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .5s ease;
+        }
+
+        iframe.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body>
+    
+
+
+
+    <iframe id="mechanic_1" data-src="./ai_1.html" frameborder="0"></iframe>
+    <iframe id="mechanic_2" data-src="./ai_2.html" frameborder="0"></iframe>
+    <iframe id="mechanic_3" data-src="./ai.html" frameborder="0"></iframe>
+
+
+
+    <script>
+
+        function startGame(mechanic_id) {
+                
+            const mechanicFrame = document.getElementById(mechanic_id);
+            mechanicFrame.src = mechanicFrame.getAttribute('data-src');
+            mechanicFrame.classList.add('active');
+        }
+        window.addEventListener('load', e => {
+            startGame('mechanic_1');
+            
+        })
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>index</title>
+<script src="//banners.adfox.ru/220321/adfox/124350/c71464532c0fc2020d8e8667ecfd9a3f_createjs.min.js"></script>
+<script src="index.js?1782131025516"></script>
+<script>
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	var comp=AdobeAn.getComposition("C2FF4C35834A4122BCF87252FB971D31");
+	var lib=comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt){handleFileLoad(evt,comp)});
+	loader.addEventListener("complete", function(evt){handleComplete(evt,comp)});
+	var lib=comp.getLibrary();
+	loader.loadManifest(lib.properties.manifest);
+}
+function handleFileLoad(evt, comp) {
+	var images=comp.getImages();	
+	if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }	
+}
+function handleComplete(evt,comp) {
+	var lib=comp.getLibrary();
+	var ss=comp.getSpriteSheet();
+	var queue = evt.target;
+	var ssMetadata = lib.ssMetadata;
+	for(i=0; i<ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
+	}
+	exportRoot = new lib.index();
+	stage = new lib.Stage(canvas);
+	stage.enableMouseOver();
+	fnStartAnimation = function() {
+		stage.addChild(exportRoot);
+		createjs.Ticker.framerate = lib.properties.fps;
+		createjs.Ticker.addEventListener("tick", stage);
+	}	    
+	AdobeAn.makeResponsive(false,'both',false,1,[canvas,anim_container,dom_overlay_container]);	
+	AdobeAn.compositionLoaded(lib.properties.id);
+	fnStartAnimation();
+	
+	// Инициализация управления после полной загрузки
+	initGameControls();
+}
+</script>
+
+<script>
+// ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ИГРЫ ==========
+window.act1 = 0;
+window.tr = 1;
+window.poz = 1;
+
+// Состояния игры
+var GAME_STATE = {
+	IDLE: 'idle',
+	INTRO: 'intro',
+	TRAJECTORY: 'trajectory',
+	POWER: 'power',
+	RESULT: 'result'
+};
+var gameState = GAME_STATE.IDLE;
+
+// Таймер выбора траектории
+var trajectoryTimer = null;
+var trajectoryTimeLeft = 5;
+var trajectorySelected = false;
+
+// Холст для рисования траектории
+var drawCanvas = null;
+var drawCtx = null;
+var isDrawing = false;
+var drawPoints = [];
+var drawingEnabled = false;
+
+
+// Параметры треугольника
+var ROTATION = Math.PI / 5; // 30 градусов
+var HEIGHT_RATIO = 1 // 70% от меньшей стороны контейнера
+var APEX_ANGLE = 100 * Math.PI / 180; // 90 градусов при вершине
+var BASE_RATIO = 2 * Math.tan(APEX_ANGLE / 2);
+var cx, cy, H, W;
+var canvasWidth, canvasHeight;
+
+// Пропорции зон: Лево 45%, Центр 20%, Право 35%
+var ZONE_PROPORTIONS = {
+	left: 0.45,   // 45%
+	center: 0.20, // 20%
+	right: 0.35   // 35%
+};
+
+// Зоны треугольника (границы для 3 частей)
+var zoneBoundaries = { leftThird: 0, rightThird: 0 };
+
+// ========== АДАПТИВНОСТЬ ==========
+
+function resizeContainer() {
+	var container = document.getElementById('animation_container');
+	if (!container) return;
+	
+	var windowWidth = window.innerWidth;
+	var windowHeight = window.innerHeight;
+	var aspectRatio = 850 / 480; // Исходное соотношение сторон
+	
+	var newWidth, newHeight;
+	
+	if (windowWidth / windowHeight > aspectRatio) {
+		// Окно шире - ограничиваем по высоте
+		newHeight = windowHeight;
+		newWidth = newHeight * aspectRatio;
+	} else {
+		// Окно уже - ограничиваем по ширине
+		newWidth = windowWidth;
+		newHeight = newWidth / aspectRatio;
+	}
+	
+	container.style.width = newWidth + 'px';
+	container.style.height = newHeight + 'px';
+	
+	// Обновляем геометрию рисования
+	if (drawCanvas) {
+		updateDrawGeometry();
+	}
+}
+
+// ========== ФУНКЦИИ УПРАВЛЕНИЯ ВИДЕО ==========
+
+function hideAllVideos() {
+	document.querySelectorAll('.video-block').forEach(function(block) {
+		block.classList.remove('show');
+		block.style.display = 'none';
+		var video = block.querySelector('video');
+		if (video) {
+			video.pause();
+			video.currentTime = 0;
+		}
+	});
+}
+
+function showVideo(blockId) {
+	var block = document.getElementById(blockId);
+	if (!block) return;
+	block.style.display = 'block';
+	block.classList.add('show');
+}
+
+function playVideo(blockId) {
+	var block = document.getElementById(blockId);
+	if (!block) return;
+	
+	var video = block.querySelector('video');
+	if (!video) return;
+	
+	video.currentTime = 0;
+	video.play().catch(function(e) {
+		console.log('Ошибка воспроизведения ' + blockId + ':', e);
+	});
+	
+	console.log('▶ Воспроизведение: ' + blockId);
+}
+
+function vShow1() { hideAllVideos(); showVideo('video1'); playVideo('video1'); }
+function vShow2_1() { hideAllVideos(); showVideo('video2_1'); playVideo('video2_1'); }
+function vShow2_2() { hideAllVideos(); showVideo('video2_2'); playVideo('video2_2'); }
+function vShow3_1() { hideAllVideos(); showVideo('video3_1'); playVideo('video3_1'); }
+function vShow3_2() { hideAllVideos(); showVideo('video3_2'); playVideo('video3_2'); }
+function vShow3_3() { hideAllVideos(); showVideo('video3_3'); playVideo('video3_3'); }
+function vShow4_1() { hideAllVideos(); showVideo('video4_1'); playVideo('video4_1'); }
+function vShow4_2() { hideAllVideos(); showVideo('video4_2'); playVideo('video4_2'); }
+function vShow4_3() { hideAllVideos(); showVideo('video4_3'); playVideo('video4_3'); }
+
+function playResultVideo() {
+	var tr = window.tr || 1;
+	var poz = window.poz || 1;
+	
+	console.log('🎯 Определение видео: tr=' + tr + ', poz=' + poz);
+	
+	if (tr === 1) {
+		if (poz === 1) vShow2_2();
+		else if (poz === 2 || poz === 3) vShow2_1();
+	} else if (tr === 2) {
+		if (poz === 1) vShow3_1();
+		else if (poz === 2) vShow3_2();
+		else if (poz === 3) vShow3_3();
+	} else if (tr === 3) {
+		if (poz === 1) vShow4_1();
+		else if (poz === 2) vShow4_2();
+		else if (poz === 3) vShow4_3();
+	}
+}
+
+// ========== ФУНКЦИИ РИСОВАНИЯ ТРАЕКТОРИИ ==========
+
+function initDrawCanvas() {
+	drawCanvas = document.createElement('canvas');
+	drawCanvas.style.position = 'absolute';
+	drawCanvas.style.top = '0';
+	drawCanvas.style.left = '0';
+	drawCanvas.style.width = '100%';
+	drawCanvas.style.height = '100%';
+	drawCanvas.style.zIndex = '1000';
+	drawCanvas.style.pointerEvents = 'auto';
+	drawCanvas.style.display = 'none';
+	drawCanvas.id = 'drawCanvas';
+	
+	var container = document.getElementById('animation_container');
+	if (container) {
+		container.appendChild(drawCanvas);
+	}
+	
+	drawCtx = drawCanvas.getContext('2d');
+	
+	drawCanvas.addEventListener('mousedown', handleDrawMouseDown);
+	drawCanvas.addEventListener('touchstart', handleDrawTouchStart, { passive: false });
+	window.addEventListener('mousemove', handleDrawMouseMove);
+	window.addEventListener('touchmove', handleDrawTouchMove, { passive: false });
+	window.addEventListener('mouseup', handleDrawMouseUp);
+	window.addEventListener('touchend', handleDrawTouchEnd);
+	window.addEventListener('resize', function() {
+		resizeContainer();
+		updateDrawGeometry();
+	});
+	
+	updateDrawGeometry();
+}
+
+function updateDrawGeometry() {
+	if (!drawCanvas) return;
+	
+	var container = document.getElementById('animation_container');
+	if (!container) return;
+	
+	canvasWidth = container.offsetWidth;
+	canvasHeight = container.offsetHeight;
+	drawCanvas.width = canvasWidth;
+	drawCanvas.height = canvasHeight;
+	
+	// Центр треугольника
+	cx = canvasWidth / 2;
+	cy = canvasHeight * 0.55; // Смещаем немного вниз
+	
+	// Размеры треугольника
+	H = Math.min(canvasWidth, canvasHeight) * HEIGHT_RATIO;
+	W = H * BASE_RATIO;
+	
+	// Вычисляем границы зон с новыми пропорциями
+	// Левая граница основания: -W/2
+	// Правая граница основания: W/2
+	// Лево: 45% ширины
+	// Центр: 20% ширины
+	// Право: 35% ширины
+	zoneBoundaries.leftThird = -W/2 + W * ZONE_PROPORTIONS.left;
+	zoneBoundaries.rightThird = zoneBoundaries.leftThird + W * ZONE_PROPORTIONS.center;
+	
+	redrawTriangle();
+}
+
+function worldToLocal(wx, wy) {
+	var dx = wx - cx;
+	var dy = wy - cy;
+	var cos = Math.cos(-ROTATION);
+	var sin = Math.sin(-ROTATION);
+	return {
+		x: dx * cos - dy * sin,
+		y: dx * sin + dy * cos
+	};
+}
+
+function isInsideTriangle(localX, localY) {
+	if (localY < -H/2 || localY > H/2) return false;
+	var t = (localY + H/2) / H;
+	var halfWidth = (W / 2) * (1 - t);
+	return Math.abs(localX) <= halfWidth;
+}
+
+function getZone(localX, localY) {
+	// Используем локальную X-координату относительно границ зон
+	if (localX <= zoneBoundaries.leftThird) return 'Лево';
+	if (localX <= zoneBoundaries.rightThird) return 'Центр';
+	return 'Право';
+}
+
+function zoneToNumber(zone) {
+	if (zone === 'Лево') return 1;
+	if (zone === 'Центр') return 2;
+	if (zone === 'Право') return 3;
+	return 1;
+}
+
+function getZoneColor(zone) {
+	if (zone === 'Лево') return 'rgba(255, 80, 80, 0.25)';
+	if (zone === 'Центр') return 'rgba(80, 255, 80, 0.15)';
+	return 'rgba(80, 80, 255, 0.2)';
+}
+
+function redrawTriangle() {
+	if (!drawCtx) return;
+	
+	drawCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+	
+	drawCtx.save();
+	drawCtx.translate(cx, cy);
+	drawCtx.rotate(ROTATION);
+	
+	// Рисуем 3 зоны треугольника с новыми пропорциями
+	var zones = [
+		{ 
+			left: -W/2, 
+			right: zoneBoundaries.leftThird, 
+			color: 'rgba(255, 100, 100, 0.2)', 
+			label: 'ЛЕВО',
+			percent: '45%'
+		},
+		{ 
+			left: zoneBoundaries.leftThird, 
+			right: zoneBoundaries.rightThird, 
+			color: 'rgba(100, 255, 100, 0.12)', 
+			label: 'ЦЕНТР',
+			percent: '30%'
+		},
+		{ 
+			left: zoneBoundaries.rightThird, 
+			right: W/2, 
+			color: 'rgba(100, 100, 255, 0.18)', 
+			label: 'ПРАВО',
+			percent: '25%'
+		}
+	];
+	
+	// Рисуем каждую зону
+	zones.forEach(function(zone) {
+		drawCtx.beginPath();
+		drawCtx.moveTo(zone.left, -H/2);
+		drawCtx.lineTo(0, H/2);
+		drawCtx.lineTo(zone.right, -H/2);
+		drawCtx.closePath();
+		drawCtx.fillStyle = zone.color;
+		drawCtx.fill();
+	});
+	
+	// Разделительные линии зон
+	drawCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+	drawCtx.lineWidth = 1.5;
+	drawCtx.setLineDash([6, 4]);
+	
+	// Линия разделения Лево/Центр
+	drawCtx.beginPath();
+	drawCtx.moveTo(zoneBoundaries.leftThird, -H/2);
+	drawCtx.lineTo(0, H/2);
+	drawCtx.stroke();
+	
+	// Линия разделения Центр/Право
+	drawCtx.beginPath();
+	drawCtx.moveTo(zoneBoundaries.rightThird, -H/2);
+	drawCtx.lineTo(0, H/2);
+	drawCtx.stroke();
+	
+	drawCtx.setLineDash([]);
+	
+	// Контур треугольника
+	drawCtx.beginPath();
+	drawCtx.moveTo(-W/2, -H/2);
+	drawCtx.lineTo(0, H/2);
+	drawCtx.lineTo(W/2, -H/2);
+	drawCtx.closePath();
+	drawCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+	drawCtx.lineWidth = 2.5;
+	drawCtx.stroke();
+	
+	// Подписи зон с процентами
+	var fontSize = Math.max(12, H * 0.065);
+	drawCtx.font = 'bold ' + fontSize + 'px Arial';
+	drawCtx.textAlign = 'center';
+	
+	var labelY = -H/2 + H * 0.18;
+	
+	// Лево (45%)
+	var leftX = (-W/2 + zoneBoundaries.leftThird) / 2;
+	drawCtx.fillStyle = 'rgba(255, 150, 150, 0.9)';
+	drawCtx.fillText('1', leftX, labelY - fontSize * 0.5);
+	drawCtx.font = (fontSize * 0.6) + 'px Arial';
+	drawCtx.fillText('45%', leftX, labelY + fontSize * 0.4);
+	
+	// Центр (20%)
+	var centerX = (zoneBoundaries.leftThird + zoneBoundaries.rightThird) / 2;
+	drawCtx.font = 'bold ' + fontSize + 'px Arial';
+	drawCtx.fillStyle = 'rgba(150, 255, 150, 0.9)';
+	drawCtx.fillText('2', centerX, labelY - fontSize * 0.5);
+	drawCtx.font = (fontSize * 0.6) + 'px Arial';
+	drawCtx.fillText('20%', centerX, labelY + fontSize * 0.4);
+	
+	// Право (35%)
+	var rightX = (zoneBoundaries.rightThird + W/2) / 2;
+	drawCtx.font = 'bold ' + fontSize + 'px Arial';
+	drawCtx.fillStyle = 'rgba(150, 150, 255, 0.9)';
+	drawCtx.fillText('3', rightX, labelY - fontSize * 0.5);
+	drawCtx.font = (fontSize * 0.6) + 'px Arial';
+	drawCtx.fillText('35%', rightX, labelY + fontSize * 0.4);
+	
+	drawCtx.restore();
+	
+	// Рисуем траекторию
+	drawTrajectoryPath();
+}
+
+function drawTrajectoryPath() {
+	if (!drawCtx || drawPoints.length < 2) return;
+	
+	drawCtx.save();
+	drawCtx.beginPath();
+	drawCtx.moveTo(drawPoints[0].x, drawPoints[0].y);
+	for (var i = 1; i < drawPoints.length; i++) {
+		drawCtx.lineTo(drawPoints[i].x, drawPoints[i].y);
+	}
+	drawCtx.strokeStyle = '#FDBA01';
+	drawCtx.lineWidth = Math.max(3, W * 0.015);
+	drawCtx.lineCap = 'round';
+	drawCtx.lineJoin = 'round';
+	drawCtx.shadowColor = '#FDBA01';
+	drawCtx.shadowBlur = 10;
+	drawCtx.stroke();
+	
+	// Точка в конце траектории
+	if (drawPoints.length > 0) {
+		var lastPoint = drawPoints[drawPoints.length - 1];
+		
+		// Определяем зону для подсветки
+		var local = worldToLocal(lastPoint.x, lastPoint.y);
+		var zone = getZone(local.x, local.y);
+		var glowColor = '#FDBA01';
+		if (zone === 'Лево') glowColor = '#FF6464';
+		else if (zone === 'Центр') glowColor = '#64FF64';
+		else if (zone === 'Право') glowColor = '#6464FF';
+		
+		// Рисуем подсвеченную точку
+		drawCtx.beginPath();
+		drawCtx.arc(lastPoint.x, lastPoint.y, Math.max(6, W * 0.025), 0, Math.PI * 2);
+		drawCtx.fillStyle = '#FFFFFF';
+		drawCtx.fill();
+		drawCtx.strokeStyle = glowColor;
+		drawCtx.lineWidth = 3;
+		drawCtx.shadowColor = glowColor;
+		drawCtx.shadowBlur = 15;
+		drawCtx.stroke();
+	}
+	
+	drawCtx.restore();
+}
+
+function enableDrawing() {
+	if (!drawCanvas) initDrawCanvas();
+	
+	drawingEnabled = true;
+	drawCanvas.style.display = 'block';
+	drawPoints = [];
+	updateDrawGeometry();
+	console.log('✏ Рисование траектории включено');
+	console.log('📐 Пропорции зон: Лево 45% | Центр 20% | Право 35%');
+}
+
+function disableDrawing() {
+	drawingEnabled = false;
+	isDrawing = false;
+	drawPoints = [];
+	
+	if (drawCanvas) {
+		drawCanvas.style.display = 'none';
+		if (drawCtx) {
+			drawCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+		}
+	}
+	
+	console.log('✏ Рисование траектории выключено');
+}
+
+// ========== ОБРАБОТЧИКИ МЫШИ ==========
+
+function handleDrawMouseDown(e) {
+	if (!drawingEnabled || gameState !== GAME_STATE.TRAJECTORY) return;
+	if (e.button !== 0) return;
+	
+	e.preventDefault();
+	e.stopPropagation();
+	
+	startDrawing(e.clientX, e.clientY);
+}
+
+function handleDrawMouseMove(e) {
+	if (!isDrawing || !drawingEnabled) return;
+	e.preventDefault();
+	continueDrawing(e.clientX, e.clientY);
+}
+
+function handleDrawMouseUp(e) {
+	if (!isDrawing || !drawingEnabled) return;
+	e.preventDefault();
+	endDrawing();
+}
+
+// ========== ОБРАБОТЧИКИ TAUCH ==========
+
+function handleDrawTouchStart(e) {
+	if (!drawingEnabled || gameState !== GAME_STATE.TRAJECTORY) return;
+	e.preventDefault();
+	e.stopPropagation();
+	
+	var touch = e.touches[0];
+	startDrawing(touch.clientX, touch.clientY);
+}
+
+function handleDrawTouchMove(e) {
+	if (!isDrawing || !drawingEnabled) return;
+	e.preventDefault();
+	
+	var touch = e.touches[0];
+	continueDrawing(touch.clientX, touch.clientY);
+}
+
+function handleDrawTouchEnd(e) {
+	if (!isDrawing || !drawingEnabled) return;
+	e.preventDefault();
+	endDrawing();
+}
+
+// ========== ЛОГИКА РИСОВАНИЯ ==========
+
+function startDrawing(clientX, clientY) {
+	var rect = drawCanvas.getBoundingClientRect();
+	var mx = clientX - rect.left;
+	var my = clientY - rect.top;
+	var local = worldToLocal(mx, my);
+	
+	if (isInsideTriangle(local.x, local.y)) {
+		isDrawing = true;
+		drawPoints = [{ x: mx, y: my }];
+		redrawTriangle();
+		
+		// Показываем текущую зону при старте
+		var zone = getZone(local.x, local.y);
+		console.log('📍 Старт рисования в зоне: ' + zone);
+	}
+}
+
+function continueDrawing(clientX, clientY) {
+	var rect = drawCanvas.getBoundingClientRect();
+	var mx = clientX - rect.left;
+	var my = clientY - rect.top;
+	var local = worldToLocal(mx, my);
+	
+	if (isInsideTriangle(local.x, local.y)) {
+		drawPoints.push({ x: mx, y: my });
+		redrawTriangle();
+	}
+}
+
+function endDrawing() {
+	isDrawing = false;
+	
+	if (drawPoints.length > 1 && gameState === GAME_STATE.TRAJECTORY) {
+		var lastPoint = drawPoints[drawPoints.length - 1];
+		var local = worldToLocal(lastPoint.x, lastPoint.y);
+		var zone = getZone(local.x, local.y);
+		var trajectoryNumber = zoneToNumber(zone);
+		
+		console.log('🎯 Траектория нарисована: ' + zone + ' (' + trajectoryNumber + ')');
+		console.log('   Зоны: Лево 45% | Центр 20% | Право 35%');
+		
+		selectTrajectory(trajectoryNumber);
+		disableDrawing();
+	}
+}
+
+// ========== ФУНКЦИИ УПРАВЛЕНИЯ ИГРОЙ ==========
+
+function startGame() {
+	console.log('🚀 Запуск игры');
+	
+	if (!exportRoot) {
+		console.error('❌ Анимация не загружена');
+		return;
+	}
+	
+	window.act1 = 0;
+	window.tr = 1;
+	window.poz = 1;
+	trajectorySelected = false;
+	
+	gameState = GAME_STATE.INTRO;
+	
+	exportRoot.play();
+	vShow1();
+	
+	console.log('✅ Игра запущена');
+}
+
+function selectTrajectory(value) {
+	if (gameState !== GAME_STATE.TRAJECTORY) {
+		console.warn('⚠ Не время выбора траектории. Состояние: ' + gameState);
+		return;
+	}
+	
+	if (trajectorySelected) {
+		console.warn('⚠ Траектория уже выбрана');
+		return;
+	}
+	
+	console.log('🎯 Выбрана траектория: ' + value);
+	
+	trajectorySelected = true;
+	window.tr = value;
+	
+	clearInterval(trajectoryTimer);
+	disableDrawing();
+	
+	gameState = GAME_STATE.POWER;
+	exportRoot.play();
+	
+	console.log('▶ Переход к выбору силы');
+}
+
+function selectPower() {
+	if (gameState !== GAME_STATE.POWER) {
+		console.warn('⚠ Не время выбора силы. Состояние: ' + gameState);
+		return;
+	}
+	
+	console.log('⚡ Фиксация силы: ' + window.poz);
+	
+	if (exportRoot.instance_1) {
+		exportRoot.instance_1.stop();
+		console.log('🛑 Шкала силы остановлена на poz=' + window.poz);
+	}
+	
+	gameState = GAME_STATE.RESULT;
+	playResultVideo();
+	exportRoot.play();
+	
+	console.log('▶ Показ результата');
+}
+
+function resetGame() {
+	console.log('🔄 Сброс игры');
+	
+	clearInterval(trajectoryTimer);
+	disableDrawing();
+	hideAllVideos();
+	
+	if (exportRoot) {
+		exportRoot.gotoAndStop(0);
+	}
+	
+	window.act1 = 0;
+	window.tr = 1;
+	window.poz = 1;
+	trajectorySelected = false;
+	gameState = GAME_STATE.IDLE;
+	
+	console.log('✅ Игра сброшена');
+}
+
+// ========== ОТСЛЕЖИВАНИЕ КАДРОВ ==========
+
+function setupFrameTracking() {
+	if (!exportRoot) return;
+	
+	createjs.Ticker.addEventListener('tick', function() {
+		if (!exportRoot) return;
+		
+		var currentFrame = Math.floor(exportRoot.currentFrame);
+		
+		if (currentFrame === 9 && gameState === GAME_STATE.INTRO) {
+			console.log('⏸ Кадр 9: пауза для выбора траектории');
+			gameState = GAME_STATE.TRAJECTORY;
+			exportRoot.stop();
+			enableDrawing();
+		}
+		
+		if (currentFrame === 10 && gameState === GAME_STATE.POWER) {
+			console.log('⏸ Кадр 10: пауза для выбора силы');
+			exportRoot.stop();
+		}
+	});
+}
+
+// ========== ОБРАБОТЧИКИ ВИДЕО ==========
+
+function setupVideoEndHandlers() {
+	setupVideoEndHandler('video1', function() {
+		console.log('🏁 Вступление закончилось');
+		window.act1 = 1;
+	});
+	
+	['video2_1', 'video2_2', 'video3_1', 'video3_2', 'video3_3', 'video4_1', 'video4_2', 'video4_3'].forEach(function(videoId) {
+		setupVideoEndHandler(videoId, function() {
+			console.log('🏁 Видео ' + videoId + ' закончилось');
+		});
+	});
+}
+
+function setupVideoEndHandler(videoBlockId, callback) {
+	var block = document.getElementById(videoBlockId);
+	if (!block) return;
+	
+	var video = block.querySelector('video');
+	if (!video) return;
+	
+	video.addEventListener('ended', function() {
+		video.pause();
+		console.log('🏁 Событие ended для: ' + videoBlockId);
+		if (callback) callback();
+	});
+}
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+function initGameControls() {
+	console.log('🔧 Инициализация игровых контролов');
+	
+	window.vShow1 = vShow1;
+	window.vShow2_1 = vShow2_1;
+	window.vShow2_2 = vShow2_2;
+	window.vShow3_1 = vShow3_1;
+	window.vShow3_2 = vShow3_2;
+	window.vShow3_3 = vShow3_3;
+	window.vShow4_1 = vShow4_1;
+	window.vShow4_2 = vShow4_2;
+	window.vShow4_3 = vShow4_3;
+	
+	setupVideoEndHandlers();
+	setupFrameTracking();
+	
+	// Инициализируем холст для рисования
+	initDrawCanvas();
+	
+	// Настраиваем адаптивность
+	resizeContainer();
+	window.addEventListener('resize', resizeContainer);
+	
+	if (exportRoot) {
+		exportRoot.gotoAndStop(0);
+	}
+	
+	var mainCanvas = document.getElementById('canvas');
+	if (mainCanvas) {
+		mainCanvas.addEventListener('click', function(e) {
+			console.log('🖱 Клик по canvas, состояние: ' + gameState);
+			
+			if (gameState === GAME_STATE.IDLE) {
+				startGame();
+			} else if (gameState === GAME_STATE.POWER) {
+				selectPower();
+			} else if (gameState === GAME_STATE.RESULT) {
+				resetGame();
+			}
+		});
+	}
+	
+	console.log('✅ Игровые контролы инициализированы');
+	console.log('📐 Пропорции зон треугольника: Лево 45% | Центр 20% | Право 35%');
+	console.log('📋 Текущее состояние: ' + gameState);
+}
+
+// Отладка
+setInterval(function() {
+	if (exportRoot) {
+		console.log('📊 Статус:', {
+			состояние: gameState,
+			кадр: Math.floor(exportRoot.currentFrame),
+			tr: window.tr,
+			poz: window.poz,
+			act1: window.act1,
+			рисование: drawingEnabled,
+			зоны: 'Лево 45% | Центр 20% | Право 35%'
+		});
+	}
+}, 5000);
+
+</script>
+
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	
+	html, body {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #000;
+	}
+	
+	body {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	#animation_container {
+		position: relative;
+		background-color: rgba(0, 0, 0, 0.00);
+		overflow: hidden;
+	}
+	
+	#canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100% !important;
+		height: 100% !important;
+		background-color: transparent !important;
+		cursor: pointer;
+	}
+	
+	#dom_overlay_container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		overflow: hidden;
+	}
+	
+	.video-block {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+		display: none;
+	}
+	
+	.video-block.show {
+		opacity: 1;
+		display: block;
+	}
+	
+	.video-block video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+	
+	#drawCanvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		cursor: crosshair;
+		z-index: 1000;
+
+        transform: translate(-2%, -4%);
+	}
+</style>
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(0, 0, 0, 0.00); width:850px; height:480px">
+        
+		<div id="video1" class="video-block">
+			<video muted playsinline>
+				<source src="v1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video2_1" class="video-block">
+			<video muted playsinline>
+				<source src="v2_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video2_2" class="video-block">
+			<video muted playsinline>
+				<source src="v2_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_1" class="video-block">
+			<video muted playsinline>
+				<source src="v3_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_2" class="video-block">
+			<video muted playsinline>
+				<source src="v3_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video3_3" class="video-block">
+			<video muted playsinline>
+				<source src="v3_3.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_1" class="video-block">
+			<video muted playsinline>
+				<source src="v4_1.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_2" class="video-block">
+			<video muted playsinline>
+				<source src="v4_2.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="video4_3" class="video-block">
+			<video muted playsinline>
+				<source src="v4_3.mp4" type="video/mp4" />
+			</video>
+		</div>
+
+		<canvas id="canvas" width="850" height="480" style="position: absolute; display: block; background-color:rgba(0, 0, 0, 0.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:850px; height:480px; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+		
+	</div>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>Анимация 2 - Автозапуск</title>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+
+<script src="anim2.js?1782140615755"></script>
+
+<script>
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+
+// Глобальные переменные для anim2.js
+window.act2 = 0;
+window.poz = 1;
+
+// Флаг для отслеживания этапов анимации
+var animationPhase = 'idle'; // idle | intro | powerSelect | result
+var autoPlayTimer = null;
+
+function resizeContainer() {
+		var container = document.getElementById('animation_container');
+		if (!container) return;
+		var windowWidth = window.innerWidth;
+		var windowHeight = window.innerHeight;
+		var aspectRatio = 850 / 480;
+		var newWidth, newHeight;
+		if (windowWidth / windowHeight > aspectRatio) {
+			newHeight = windowHeight;
+			newWidth = newHeight * aspectRatio;
+		} else {
+			newWidth = windowWidth;
+			newHeight = newWidth / aspectRatio;
+		}
+		container.style.width = newWidth + 'px';
+		container.style.height = newHeight + 'px';
+
+		console.log('RESIZE')
+	}
+
+
+		window.addEventListener('resize', () => {
+			resizeContainer();
+		});
+
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	
+	var comp = AdobeAn.getComposition("C2FF4C35834A4122BCF87252FB971D32");
+	var lib = comp.getLibrary();
+	var ss = comp.getSpriteSheet();
+	
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt) {
+		var images = comp.getImages();
+		if (evt && (evt.item.type == "image")) {
+			images[evt.item.id] = evt.result;
+		}
+	});
+	loader.addEventListener("complete", function(evt) {
+		var queue = evt.target;
+		var ssMetadata = lib.ssMetadata;
+		
+
+		for (var i = 0; i < ssMetadata.length; i++) {
+			ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+				"images": [queue.getResult(ssMetadata[i].name)],
+				"frames": ssMetadata[i].frames
+			});
+		}
+		
+		exportRoot = new lib.index();
+		stage = new lib.Stage(canvas);
+		stage.enableMouseOver();
+		
+		fnStartAnimation = function() {
+			stage.addChild(exportRoot);
+			createjs.Ticker.framerate = lib.properties.fps;
+			createjs.Ticker.addEventListener("tick", stage);
+		};
+		
+		// Настройка видео-функций
+		setupVideoFunctions();
+		
+		// Настройка обработчиков окончания видео
+		setupVideoEndHandlers();
+		
+		AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
+
+		resizeContainer();
+		AdobeAn.compositionLoaded(lib.properties.id);
+		fnStartAnimation();
+		
+		// Запускаем автоматическое проигрывание
+		console.log('🚀 Запуск анимации 2 в автоматическом режиме');
+		startAutoPlay();
+
+	});
+	loader.loadManifest(lib.properties.manifest);
+}
+
+function setupVideoFunctions() {
+	// Функции, вызываемые из anim2.js
+	window.vShow1 = function() { 
+		console.log('📹 vShow1: показываем 2_v1 (intro)');
+		animationPhase = 'intro';
+		playVideoById('2_v1'); 
+	};
+	window.vShow2 = function() { 
+		console.log('📹 vShow2: показываем 2_v2 (результат для poz=1)');
+		animationPhase = 'result';
+		playVideoById('2_v2'); 
+	};
+	window.vShow3 = function() { 
+		console.log('📹 vShow3: показываем 2_v3 (результат для poz=2)');
+		animationPhase = 'result';
+		playVideoById('2_v3'); 
+	};
+	window.vShow4 = function() { 
+		console.log('📹 vShow4: показываем 2_v4 (результат для poz=3)');
+		animationPhase = 'result';
+		playVideoById('2_v4'); 
+	};
+}
+
+function playVideoById(videoId) {
+	if (!videoId) return;
+	
+	// Скрываем все видео
+	document.querySelectorAll('.video-block').forEach(function(block) {
+		block.classList.remove('show');
+		block.style.display = 'none';
+		var video = block.querySelector('video');
+		if (video) {
+			video.pause();
+			video.currentTime = 0;
+		}
+	});
+	
+	// Показываем и запускаем нужное видео
+	var block = document.getElementById(videoId);
+	if (!block) {
+		console.error('❌ Видео-блок не найден: ' + videoId);
+		return;
+	}
+	block.style.display = 'block';
+	block.classList.add('show');
+	
+	var video = block.querySelector('video');
+	if (!video) return;
+	video.currentTime = 0;
+	video.play().catch(function(e) {
+		console.log('Ошибка воспроизведения ' + videoId + ':', e);
+	});
+	
+	console.log('▶ Воспроизведение: ' + videoId);
+}
+
+function startAutoPlay() {
+	console.log('🎬 Начало автоматического проигрывания');
+	
+	// Шаг 1: Запускаем анимацию
+	exportRoot.play();
+	
+	// Шаг 2: Сразу вызываем go1(), чтобы показать intro видео
+	// Небольшая задержка, чтобы анимация успела инициализироваться
+	setTimeout(function() {
+		console.log('📞 Вызов go1() для показа intro');
+		// Вызываем go1 в контексте exportRoot
+		if (exportRoot.frame_0) {
+			// Если есть прямой доступ к функции кадра
+			exportRoot.play();
+			window.vShow1();
+		}
+	}, 500);
+}
+
+function setupVideoEndHandlers() {
+	// Обработчик для intro видео (2_v1)
+	var introBlock = document.getElementById('2_v1');
+	if (introBlock) {
+		var introVideo = introBlock.querySelector('video');
+		if (introVideo) {
+			introVideo.addEventListener('ended', function() {
+				introVideo.pause();
+				console.log('🏁 Видео 2_v1 закончилось (intro завершено)');
+				
+				// Устанавливаем act2 = 1, чтобы анимация перешла к кадру 9
+				window.act2 = 1;
+				animationPhase = 'powerSelect';
+				console.log('✅ act2 установлен в 1, переходим к выбору силы');
+				
+				// Анимация автоматически перейдет к кадру 9,
+				// где покажется шкала силы (Symbol70)
+				// Symbol70 меняет window.poz в цикле: 1 -> 2 -> 3 -> 2 -> 1
+				
+				// Даем время пользователю "выбрать" силу (автоматически через 3 секунды)
+				console.log('⏳ Ожидание 3 секунды для "выбора" силы...');
+				clearTimeout(autoPlayTimer);
+				// autoPlayTimer = setTimeout(function() {
+				document.addEventListener('click', () => {
+					executePowerSelection();
+				})
+				// }, 3000);
+			});
+		}
+	}
+	
+	// Обработчики для видео результатов
+	var resultVideoIds = ['2_v2', '2_v3', '2_v4'];
+	resultVideoIds.forEach(function(videoId) {
+		var block = document.getElementById(videoId);
+		if (!block) return;
+		var video = block.querySelector('video');
+		if (!video) return;
+		
+		video.addEventListener('ended', function() {
+			video.pause();
+			console.log('🏁 Видео ' + videoId + ' закончилось (результат показан)');
+			
+
+				if(videoId == '2_v4') {
+					setTimeout(() => {
+						dispatchMechanicEnd(true);
+					}, 100)
+				} else if(videoId !== '2_v4' && videoId !== '2_v1') {
+					setTimeout(() => {
+						dispatchMechanicEnd(false);
+					}, 100)
+				}
+
+			// // Перезапускаем анимацию через 2 секунды
+			// clearTimeout(autoPlayTimer);
+			// autoPlayTimer = setTimeout(function() {
+			// 	console.log('🔄 Автоматический перезапуск анимации 2');
+			// 	window.act2 = 0;
+			// 	window.poz = 1;
+			// 	animationPhase = 'idle';
+			// 	if (exportRoot) {
+			// 		exportRoot.gotoAndStop(0);
+			// 		startAutoPlay();
+			// 	}
+			// }, 2000);
+		});
+	});
+}
+
+function executePowerSelection() {
+	console.log('🎯 Выполнение выбора силы с poz=' + window.poz);
+	
+	// Вызываем go2 в контексте exportRoot
+	if (window.poz === 1) {
+		window.vShow2();
+	} else if (window.poz === 2) {
+		window.vShow3();
+	} else if (window.poz === 3) {
+		window.vShow4();
+	}
+	
+	// Продолжаем анимацию
+	if (exportRoot) {
+		exportRoot.play();
+	}
+}
+
+
+	function dispatchMechanicEnd(success) {
+		// Создаем кастомное событие с данными
+		const event = new CustomEvent('mechanicEnd', {
+			detail: {
+				success: success,
+				timestamp: Date.now()
+			}
+		});
+		
+		// Отправляем событие в родительское окно
+		if (window.parent && window.parent !== window) {
+			window.parent.document.dispatchEvent(event);
+			console.log('📤 Событие mechanicEnd отправлено в родительское окно. success:', success);
+		} else {
+			console.warn('⚠ Родительское окно не найдено');
+		}
+	}
+	
+</script>
+
+<style>
+	* { margin: 0; padding: 0; box-sizing: border-box; }
+	
+	html, body { width: 100%; height: 100dvh; overflow: hidden; background: #FDBA01; background-image: url(../imgs/back1.jpg);   background-size: cover; background-position: center;}
+	body { display: flex; align-items: center; justify-content: center; }
+	#animation_container { position: relative; background-color: rgba(0, 0, 0, 0.00); overflow: hidden; }
+	#canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; background-color: transparent !important; cursor: pointer; }
+	#dom_overlay_container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+	.video-block { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; display: none; }
+	.video-block.show { opacity: 1; display: block; }
+	.video-block video { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+	
+	/* Индикатор состояния (для отладки) */
+	#debugInfo {
+		position: fixed;
+		top: 10px;
+		left: 10px;
+		background: rgba(0, 0, 0, 0.8);
+		color: #FDBA01;
+		padding: 10px;
+		border-radius: 5px;
+		font-family: monospace;
+		font-size: 14px;
+		z-index: 10000;
+		display: none;
+	}
+</style>
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(0, 0, 0, 0.00); width:850px; height:480px">
+        
+		<!-- Видео для Анимации 2 -->
+		<div id="2_v1" class="video-block"><video muted playsinline><source src="2_v1.mp4" type="video/mp4" /></video></div>
+		<div id="2_v2" class="video-block"><video muted playsinline><source src="2_v2.mp4" type="video/mp4" /></video></div>
+		<div id="2_v3" class="video-block"><video muted playsinline><source src="2_v3.mp4" type="video/mp4" /></video></div>
+		<div id="2_v4" class="video-block"><video muted playsinline><source src="2_v4.mp4" type="video/mp4" /></video></div>
+
+		<canvas id="canvas" width="850" height="480" style="position: absolute; display: block; background-color:rgba(0, 0, 0, 0.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:850px; height:480px; position: absolute; left: 0px; top: 0px; display: block;"></div>
+	</div>
+	
+	<!-- Отладочная информация -->
+	<div id="debugInfo">
+		Фаза: <span id="phaseInfo">idle</span><br>
+		poz: <span id="pozInfo">1</span><br>
+		act2: <span id="act2Info">0</span>
+	</div>
+</body>
+</html>
