@@ -1,0 +1,1847 @@
+/* ============================================================
+   БАЗОВЫЙ СБРОС И ОБЩИЕ НАСТРОЙКИ
+   ============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: #000000;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+}
+
+.game-iframe-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 26px;
+    box-sizing: border-box;
+    padding: 10px 20px 20px;
+    background: transparent;
+}
+
+.game-iframe-wrapper iframe {
+    width: 1190px;
+    height: 672px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 26px;
+    background: transparent;
+    opacity: 0;
+    transition: opacity .5s ease;
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.game-iframe-wrapper iframe.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================================
+   УПРАВЛЕНИЕ ЭКРАНАМИ
+   ============================================================ */
+.screen {
+    display: flex;               
+    position: absolute;         
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100dvh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+.screen.game-screen {
+    background: url('./imgs/blur.jpg') center/cover no-repeat;
+    background-color: #000;
+}
+
+/* ============================================================
+   ОБЩИЕ КОМПОНЕНТЫ
+   ============================================================ */
+.top-gradient {
+    position: absolute;
+    width: 100%;
+    height: 30vh;
+    left: 0;
+    top: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 23.4%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ============================================================
+   ГЛАВНЫЙ ПРОМО-ЭКРАН
+   ============================================================ */
+#screen-main {
+    padding: clamp(20px, 4vh, 60px) clamp(20px, 10vw, 160px) clamp(20px, 4vh, 60px);
+    background-image: url('./imgs/back.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+#screen-main .dark-filter {
+    display: none;
+}
+
+#screen-main .promo-header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: clamp(250px, 10vh, 238px);
+}
+
+#screen-main .logo {
+    height: auto;
+    max-height: clamp(30px, 5vh, 50px);
+    width: auto;
+    display: block;
+}
+
+.promo-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1059px;
+    width: 100%;
+}
+
+.promo-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 5vw, 4rem);
+    line-height: 1;
+    color: #FFFFFF;
+    margin-bottom: clamp(10px, 2vh, 20px);
+}
+
+.promo-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+}
+
+.highlight-text {
+    color: #FDBA01;
+    font-weight: 600;
+}
+
+.promo-btn {
+    width: clamp(280px, 40vw, 480px);
+    height: clamp(60px, 10vh, 100px);
+    padding: 12px 32px 14px;
+    border: none;
+    border-radius: 12px;
+    background: #FDBA01;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: clamp(10px, 2vh, 20px);
+    z-index: 2;
+}
+
+.promo-btn:hover {
+    background-color: #e5a700;
+}
+
+.promo-btn:active {
+    transform: scale(0.98);
+}
+
+#screen-main:not(.is-final) .final-block {
+    display: none !important;
+}
+
+#screen-main.is-final .start-block {
+    display: none !important;
+}
+
+/* ============================================================
+   ЭКРАН ВЫБОРА ИСПЫТАНИЙ 
+   ============================================================ */
+#screen-challenge {
+    padding: clamp(40px, 4vh, 80px) clamp(20px, 2vw, 40px) clamp(20px, 4vh, 60px);
+    background-image: url('./imgs/back1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    justify-content: center;
+    align-items: center;
+}
+
+#screen-challenge .dark-filter {
+    display: none;
+}
+
+.top-gradient-challenge {
+    display: none;
+}
+
+.challenge-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 2vh, 20px);
+    width: 100%;
+    max-width: 1179px;
+    margin: 0 auto;
+    padding: 0 20px;
+    z-index: 3;
+    flex-shrink: 0;
+}
+
+.challenge-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4vw, 3.9rem);
+    line-height: 1;
+    text-align: center;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.challenge-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+     font-size: clamp(0.9rem, 1.6vw, 1.6rem);
+    line-height: 1.3;
+    text-align: center;
+    color: #FFFFFF;
+    max-width: 1179px;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: center;
+    gap: clamp(12px, 2vw, 88px);
+    width: 100%;
+    max-width: 1331px;
+    margin: clamp(20px, 4vh, 40px) auto 0;
+    padding: 0 20px;
+    z-index: 3;
+    flex-shrink: 0;
+}
+
+/* ===== КАРТОЧКА ===== */
+.challenge-card {
+    flex: 0 0 clamp(300px, 33vw, 385px);
+    height: clamp(380px, 55vh, 456px); 
+    border-radius: 20px;
+    background: #161616;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: clamp(16px, 2vh, 30px) clamp(12px, 1.5vw, 20px);
+    box-sizing: border-box;
+    position: relative;
+}
+
+.challenge-card::after {
+    content: '';
+    position: absolute;
+    top: clamp(12px, 2vh, 20px);
+    left: clamp(12px, 1.5vw, 20px);
+    right: clamp(12px, 1.5vw, 20px);
+    bottom: clamp(12px, 2vh, 20px);
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 16px;
+    pointer-events: none;
+    transition: border-color 0.3s ease;
+    z-index: 1;
+}
+
+.card-img {
+    position: static !important;
+    display: block;
+    margin: 0 auto;
+    width: 80%;
+    max-width: 280px;
+    height: auto;
+    max-height: 55%;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-bottom: clamp(50px, 1.5vh, 16px);
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    z-index: 2;
+}
+
+.card-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(4px, 0.6vh, 8px);
+    width: 100%;
+    text-align: center;
+    flex: 1;
+    justify-content: center;
+    z-index: 2;
+}
+
+.card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.2vw, 1.875rem);
+    line-height: 1.2;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.card-description {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+/* ===== Картинка ===== */
+.challenge-card .card-img {
+    width: 88%;                            /* было 85% */
+    max-width: 340px;                      /* было 320px */
+    max-height: 60%;
+    margin-top: clamp(20px, 3vh, 40px);
+    margin-bottom: clamp(8px, 1vh, 12px);  /* уменьшил ещё */
+    flex-shrink: 0;
+}
+
+/* ===== Текстовый блок ===== */
+.challenge-card .card-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;             /* прижимаем к низу */
+    flex: 1;                               /* занимает всё оставшееся пространство */
+    width: 100%;
+    text-align: center;
+    padding-bottom: clamp(12px, 2vh, 24px); /* отступ снизу, чтобы не касалось края */
+    z-index: 2;
+}
+/* ----- БЛИКИ И ТОЧКИ ----- */
+.challenge-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-img {
+    margin-top: 10px;
+}
+
+.card-text {
+    position: relative;
+    z-index: 2;
+}
+
+.challenge-card::after {
+    z-index: 1;
+}
+
+.shine-toll,
+.shine-smal {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    margin-top: -30px;
+}
+
+.shine-smal {
+    margin-left: -40px;
+}
+
+.dot-up,
+.dot-dn {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dot-up {
+    margin-top: -20px;
+    margin-left: 160px;
+}
+
+.dot-dn {
+    margin-top: 320px;
+    margin-left: -160px;
+}
+
+/* ---- СОСТОЯНИЯ ---- */
+.challenge-card.is-selected {
+    background: #FDBA01;
+}
+
+.challenge-card.is-selected .card-title,
+.challenge-card.is-selected .card-description {
+    color: #161616;
+}
+
+.challenge-card.is-selected::after {
+    border-color: rgb(255, 255, 255);
+}
+
+.challenge-card.is-completed {
+    background: #00B928;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+}
+
+.challenge-card.is-completed .card-title,
+.challenge-card.is-completed .card-description {
+    color: #FFFFFF;
+}
+
+.challenge-card.is-completed::after {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- КНОПКА ---- */
+.challenge-btn {
+    width: clamp(280px, 40vw, 480px);
+    height: clamp(60px, 10vh, 100px);
+    padding: 12px 32px 14px;
+    border: none;
+    border-radius: 12px;
+    background: #FDBA01;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: clamp(20px, 4vh, 60px);
+    z-index: 3;
+    flex-shrink: 0;
+}
+
+.challenge-btn:hover {
+    background-color: #e5a700;
+}
+
+.challenge-btn:active {
+    transform: scale(0.98);
+}
+
+.challenge-btn.disabled {
+    background: #2E2E2E;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #717171;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.points-container {
+    display: none;
+}
+
+/* ============================================================
+   ОБЩИЕ СТИЛИ ДЛЯ ИГРОВЫХ ЭКРАНОВ
+   ============================================================ */
+.game-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    z-index: 3;
+}
+
+.game-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 3.2rem);
+    line-height: 1;
+    text-align: center;
+    color: #FFFFFF;
+    margin-bottom: 0.1em;
+}
+
+.game-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 1.4vw, 1.4rem);
+    text-align: center;
+    line-height: 1.3;
+    color: #FFFFFF;
+    margin: 0 auto;
+    max-width: 90%; /* центрируем и ограничиваем ширину */
+}
+
+.game-btn {
+    position: relative;
+    width: clamp(280px, 40vw, 480px);
+    height: clamp(60px, 10vh, 100px);
+    padding: 12px 32px 14px;
+    border: none;
+    border-radius: 12px;
+    background: #FDBA01;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    z-index: 3;
+    margin: clamp(16px, 3vh, 40px) auto;
+    flex-shrink: 0;
+}
+
+.game-btn:hover {
+    background-color: #e5a700;
+}
+
+.game-btn:active {
+    transform: scale(0.98);
+}
+
+.game-btn.disabled {
+    background: #2E2E2E;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #717171;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Единый отступ сверху для всех игровых экранов (как у вратаря, но уменьшен) */
+game-content {
+    margin-top: clamp(20px, 4vh, 80px);
+}
+
+.game-screen {
+    padding-top: clamp(40px, 8vh, 120px);
+}
+
+/* ============================================================
+   УНИВЕРСАЛЬНЫЙ ЭКРАН РЕЗУЛЬТАТА 
+   ============================================================ */
+.screen-overlay-result {
+    background-color: transparent;
+    padding: clamp(20px, 4vh, 60px) clamp(20px, 10vw, 160px);
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    flex-direction: row;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    height: 100dvh;
+}
+
+.result-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+.result-content {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    flex-wrap: nowrap;
+    gap: 0;
+}
+
+.screen-content-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(10px, 1.5vh, 20px);
+    width: clamp(320px, 45vw, 655px);
+    flex-shrink: 0;
+    height: 100%;
+    z-index: 2;
+}
+
+.win-title {
+    font-family: 'Futura', 'Arial Black', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3.5vw, 3rem);
+    line-height: 1;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.win-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.9rem, 1.7vw, 1.5rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.win-small-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 1.2vw, 1.2rem);
+    line-height: 1.3;
+    color: #CDCDCD;
+    margin: 0;
+}
+
+.win-buttons-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+    max-width: 480px;
+}
+
+.win-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: clamp(280px, 40vw, 480px);
+    height: clamp(55px, 9vh, 85px);
+    padding: 12px 32px 14px;
+    border-radius: 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    line-height: 1.1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    border: none;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.win-btn.btn-yellow {
+    background: #FDBA01;
+    color: #161616;
+}
+
+.win-btn.btn-yellow:hover {
+    background: #C89300;
+    transform: scale(1.02);
+}
+
+.win-btn.btn-reverse {
+    background: #161616;
+    border: 1px solid #FDBA01;
+    color: #FDBA01;
+}
+
+.win-btn.btn-reverse:hover {
+    background: #000000;
+    border-color: #FDBA01;
+    transform: scale(1.02);
+}
+
+.win-btn:active {
+    transform: scale(0.98);
+}
+
+.screen-content-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    z-index: 2;
+    flex: 0 0 auto;
+    margin-left: clamp(20px, 3vw, 60px);
+}
+
+.photo-card-wrapper {
+    position: relative;
+    width: clamp(280px, 45vw, 857px);
+    height: auto;
+    aspect-ratio: 857 / 574;
+    border: clamp(6px, 1vw, 14px) solid #FFFFFF;
+    border-radius: clamp(12px, 2vw, 30px);
+    transform: rotate(-5.25deg);
+    overflow: hidden;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.win-safe-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ============================================================
+   ФИНАЛЬНЫЙ ЭКРАН (БОНУС) 
+   ============================================================ */
+#screen-main.is-final {
+    background-image: url('./imgs/final.jpg');
+    padding: clamp(0px, 4vh, 60px) clamp(20px, 10vw, 160px);
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    min-height: 100dvh;
+}
+
+#screen-main.is-final .promo-header {
+    flex-shrink: 0;
+}
+
+#screen-main.is-final .promo-content.final-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    max-width: 1063px;
+    width: 100%;
+    flex: 0 0 auto; 
+    margin-top: -5vh; 
+}
+
+#screen-main.is-final .promo-title {
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    margin: 0 0 clamp(10px, 1.5vh, 20px) 0;
+}
+
+#screen-main.is-final .final-subtitles-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: clamp(12px, 2vh, 24px);
+}
+
+#screen-main.is-final .final-bonus-heading {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 3vw, 3rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+#screen-main.is-final .final-bonus-heading .deposit-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: clamp(0.8rem, 1.5vw, 1.75rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+}
+
+#screen-main.is-final .highlight-yellow {
+    color: #FDBA01;
+}
+
+#screen-main.is-final .final-subtitle-desc {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(1rem, 2vw, 2rem);
+    line-height: 1.3;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+#screen-main.is-final .promo-btn {
+    width: clamp(280px, 40vw, 480px);
+    height: clamp(60px, 10vh, 100px);
+    padding: 12px 32px 14px;
+    border: none;
+    border-radius: 12px;
+    background: #FDBA01;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin: 0;
+    flex-shrink: 0;
+    margin-bottom: clamp(16px, 3vh, 40px);
+}
+
+#screen-main.is-final .promo-btn:hover {
+    background: #C89300;
+}
+
+#screen-main.is-final .promo-btn:active {
+    transform: scale(0.98);
+}
+
+#screen-main.is-final .legal-disclaimer {
+    margin-top: auto;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.5rem, 1vw, 1rem);
+    line-height: 1.3;
+    color: #CDCDCD;
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    padding-bottom: clamp(8px, 1vh, 20px);
+}
+
+#screen-main.is-final .promo-content.final-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    max-width: 1063px;
+    width: 100%;
+    flex: 0 0 auto; 
+    margin-top: -2vh; 
+}
+
+/* ============================================================
+   ПЕРЕНОСЫ
+   ============================================================ */
+.promo-title-desktop {
+    display: block;
+}
+
+.promo-title-mobile {
+    display: none;
+}
+
+.br-desktop {
+    display: inline;
+}
+
+.br-mobile {
+    display: none;
+}
+
+/* ============================================================
+   АНИМАЦИИ ДЛЯ ВСЕХ ЭКРАНОВ (десктоп)
+   ============================================================ */
+#screen-main .promo-title,
+#screen-main .promo-subtitle,
+#screen-main .promo-btn {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#screen-main .promo-title {
+    transition-delay: 0.3s;
+}
+
+#screen-main .promo-subtitle {
+    transition-delay: 0.5s;
+}
+
+#screen-main .promo-btn {
+    transition-delay: 0.7s;
+}
+
+#screen-main.active .promo-title,
+#screen-main.active .promo-subtitle,
+#screen-main.active .promo-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-challenge .challenge-title {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+#screen-challenge.active .challenge-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-challenge .challenge-subtitle {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+}
+
+#screen-challenge.active .challenge-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-challenge .challenge-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#screen-challenge.active .challenge-card:nth-child(1) {
+    transition-delay: 0.7s;
+}
+
+#screen-challenge.active .challenge-card:nth-child(2) {
+    transition-delay: 0.9s;
+}
+
+#screen-challenge.active .challenge-card:nth-child(3) {
+    transition-delay: 1.1s;
+}
+
+#screen-challenge.active .challenge-card {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-challenge .challenge-btn {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 1.3s, transform 0.8s ease 1.3s;
+}
+
+#screen-challenge.active .challenge-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-screen .game-title {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.game-screen.active .game-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-screen .game-subtitle {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+}
+
+.game-screen.active .game-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-screen .game-iframe-wrapper {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+}
+
+.game-screen.active .game-iframe-wrapper {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-screen .game-btn {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.9s, transform 0.8s ease 0.9s;
+}
+
+.game-screen.active .game-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-overlay-result .photo-card-wrapper {
+    opacity: 0;
+    transform: scale(0.9) rotate(-3deg);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.screen-overlay-result.active .photo-card-wrapper {
+    opacity: 1;
+    transform: scale(1) rotate(-5.25deg);
+}
+
+.screen-overlay-result .win-title {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+}
+
+.screen-overlay-result.active .win-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-overlay-result .win-subtitle {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+}
+
+.screen-overlay-result.active .win-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-overlay-result .win-small-text {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.9s, transform 0.8s ease 0.9s;
+}
+
+.screen-overlay-result.active .win-small-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-overlay-result .win-btn.btn-yellow {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.9s, transform 0.8s ease 0.9s;
+}
+
+.screen-overlay-result.active .win-btn.btn-yellow {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-overlay-result .win-btn.btn-reverse {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 1.1s, transform 0.8s ease 1.1s;
+}
+
+.screen-overlay-result.active .win-btn.btn-reverse {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-main.is-final .promo-title {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+#screen-main.is-final.active .promo-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-main.is-final .final-bonus-heading {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+}
+
+#screen-main.is-final.active .final-bonus-heading {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-main.is-final .final-subtitle-desc {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+}
+
+#screen-main.is-final.active .final-subtitle-desc {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-main.is-final .promo-btn {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease 0.9s, transform 0.8s ease 0.9s;
+}
+
+#screen-main.is-final.active .promo-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#screen-main.is-final .legal-disclaimer {
+    opacity: 0;
+    transition: opacity 0.8s ease 1.1s;
+}
+
+#screen-main.is-final.active .legal-disclaimer {
+    opacity: 1;
+}
+
+#screen-main.is-final .promo-title-desktop {
+    display: block;
+}
+
+#screen-main.is-final .promo-title-mobile {
+    display: none;
+}
+
+/* ============================================================
+   АДАПТИВ — МОБИЛЬНЫЕ ЭКРАНЫ (до 767px)
+   ============================================================ */
+@media (max-width: 767px) {
+
+    /* ---------- ГЛАВНЫЙ ЭКРАН ---------- */
+    #screen-main {
+        padding: 22px 24px 40px;
+        background-image: url('./imgs/back_mob.jpg');
+        background-size: cover;
+        background-position: center;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #161616;
+        position: relative;
+    }
+    #screen-main .dark-filter {
+        display: none;
+    }
+    #screen-main .promo-header {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0;
+    }
+    #screen-main .logo {
+        width: 145px;
+        height: 24px;
+        max-height: none;
+        max-width: none;
+    }
+    .promo-content {
+        position: relative;
+        z-index: 2;
+        max-width: 342.5px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px; /* уменьшено с 12px */
+        margin: 0 auto;
+        flex: 1;
+        justify-content: center;
+    }
+    .promo-title-desktop {
+        display: none;
+    }
+    .promo-title-mobile {
+        display: block;
+    }
+    .promo-title {
+        font-family: 'Futura', 'Arial Black', sans-serif;
+        font-weight: 700;
+        font-size: 26px; /* уменьшено с 32px */
+        line-height: 110%;
+        text-transform: uppercase;
+        color: #FFFFFF;
+        text-align: center;
+        margin: 0;
+    }
+    .promo-subtitle {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        font-size: 14px; /* уменьшено с 16px */
+        line-height: 130%;
+        color: #CDCDCD;
+        text-align: center;
+        margin: 0;
+        opacity: 1;
+    }
+    .promo-btn {
+        width: 342.5px;
+        max-width: 100%;
+        height: 60px;
+        padding: 12px 32px 14px;
+        border: none;
+        border-radius: 12px;
+        background: #FDBA01;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        line-height: 110%;
+        color: #161616;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        margin: 0 auto;
+        flex-shrink: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .promo-btn:hover {
+        background: #C89300;
+    }
+    #screen-main.is-final .start-block {
+        display: none !important;
+    }
+
+    /* ---------- ЭКРАН ВЫБОРА ИСПЫТАНИЙ ---------- */
+    #screen-challenge {
+        padding: 40px 0 0 0; /* уменьшено с 60px 0 0 0 */
+        background-image: url('./imgs/back1_mob.jpg');
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .challenge-content {
+        padding: 0 16px;
+        gap: 8px;
+    }
+    .challenge-title {
+        font-size: 24px; /* уменьшено с 2.8vh или 32px, привязано к px */
+        line-height: 1.1;
+    }
+    .challenge-subtitle {
+        font-size: 14px; /* уменьшено с 16px */
+        line-height: 1.3;
+        max-width: 100%;
+    }
+
+    .cards-container {
+        gap: 12px;
+        padding: 0 12px;
+        margin-top: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        justify-content: flex-start;
+    }
+
+    .challenge-card {
+        flex: 0 0 auto;
+        width: 80vw;           /* чуть шире (было 75vw) */
+        max-width: 340px;
+        min-width: 240px;
+        height: 50vh;          /* чуть выше (было 45vh) */
+        max-height: 450px;
+        min-height: 280px;
+        padding: 16px 12px 20px;
+        border-radius: 16px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .challenge-card::after {
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        border-radius: 12px;
+        border-width: 1.5px;
+    }
+
+    /* Картинка в карточке – увеличиваем и опускаем */
+    .challenge-card .card-img {
+        width: 85%;             /* было 60vw – теперь пропорционально */
+        max-width: 280px;
+        max-height: 55%;
+        margin-top: 16px;       /* добавили отступ сверху */
+        margin-bottom: 8px;     /* уменьшили нижний */
+        flex-shrink: 0;
+    }
+
+    /* Текст прижат к низу */
+    .challenge-card .card-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        flex: 1;
+        width: 100%;
+        text-align: center;
+        padding-bottom: 12px;
+    }
+
+    .card-title {
+        font-size: 20px;        /* было 2.8vh */
+        line-height: 1.2;
+    }
+
+    .card-description {
+        font-size: 14px;        /* было 1.8vh */
+        line-height: 1.3;
+    }
+
+    .points-container {
+        display: flex !important;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin: 16px auto 0;
+        flex-shrink: 0;
+        height: 16px;
+        justify-content: center;
+        width: 100%;
+        padding: 0 24px;
+    }
+    .point {
+        width: 28px;
+        height: 16px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 16px;
+        transition: background 0.3s ease, width 0.3s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .point.active {
+        background: #FFFFFF;
+        width: 64px;
+    }
+
+    .challenge-btn {
+        width: 342px;
+        max-width: 100%;
+        height: 60px;
+        padding: 12px 32px 14px;
+        border: none;
+        border-radius: 12px;
+        background: #FDBA01;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+        color: #161616;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        margin: 20px auto 40px;  /* уменьшено с 16px auto 40px */
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+    }
+    .challenge-btn:hover {
+        background: #C89300;
+    }
+    .challenge-btn:active {
+        transform: scale(0.98);
+    }
+    .challenge-btn.disabled {
+        background: #FDBA01;
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ---------- ИГРОВЫЕ ЭКРАНЫ ---------- */
+    .game-screen .game-content {
+        margin-top: 12px;       /* уменьшено с clamp(16px, 3vh, 40px) */
+    }
+
+    .game-title {
+        font-size: 24px;        /* было clamp(24px, 6vw, 32px) – зафиксировали */
+        margin-bottom: 0.1em;
+    }
+
+    .game-subtitle {
+        font-size: 14px;        /* было clamp(12px, 3vw, 16px) */
+        max-width: 90%;
+    }
+
+    .game-iframe-wrapper {
+        padding: 8px 12px 12px;
+    }
+
+    .game-iframe-wrapper iframe {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1190 / 672;
+        max-height: 70vh;
+    }
+
+    .game-btn {
+        width: 342px;
+        max-width: 100%;
+        height: 60px;
+        font-size: 20px;
+        margin: 12px auto 40px;
+    }
+
+    /* ---------- ЭКРАН РЕЗУЛЬТАТА ---------- */
+    .screen-overlay-result {
+        padding: 0;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+        height: 100dvh;
+        overflow: hidden;
+        background-color: transparent;
+    }
+
+    .result-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 390px;
+        height: 100%;
+        padding: 40px 24px 30px;  /* уменьшено с 60px 24px 40px */
+        position: relative;
+        z-index: 2;
+        gap: 20px;               /* уменьшено с 26px */
+    }
+
+    .screen-content-left,
+    .screen-content-right {
+        display: contents;
+    }
+
+    .win-title {
+        font-size: 24px;         /* было 28px */
+        line-height: 100%;
+        text-align: center;
+        text-transform: uppercase;
+        color: #FFFFFF;
+        margin: 0;
+        width: 100%;
+        order: 1;
+    }
+
+    .photo-card-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 320px;        /* чуть меньше */
+        height: auto;
+        aspect-ratio: 342 / 449;
+        border: 6px solid #FFFFFF;  /* уменьшено с 8px */
+        border-radius: 12px;
+        transform: none;
+        overflow: hidden;
+        box-sizing: border-box;
+        margin: 0;
+        order: 2;
+        flex-shrink: 0;
+    }
+
+    .win-safe-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    .win-subtitle {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 400;
+        font-size: 14px;         /* было 14px, оставили */
+        line-height: 130%;
+        text-align: center;
+        color: #FFFFFF;
+        margin: 0;
+        width: 100%;
+        max-width: 330px;
+        order: 3;
+    }
+
+    .win-small-text {
+        display: none !important;
+    }
+
+    .win-buttons-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;               /* уменьшено с 8px */
+        width: 100%;
+        max-width: 342px;
+        flex: 0 0 auto;
+        order: 4;
+    }
+
+    .win-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 342px;
+        height: 54px;           /* было 60px */
+        padding: 10px 32px 12px;
+        border-radius: 12px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 18px;        /* было 20px */
+        line-height: 110%;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        border: none;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .win-btn.btn-yellow {
+        background: #FDBA01;
+        color: #161616;
+    }
+    .win-btn.btn-yellow:hover {
+        background: #C89300;
+        transform: scale(1.02);
+    }
+    .win-btn.btn-reverse {
+        background: #161616;
+        border: 1px solid #FDBA01;
+        color: #FDBA01;
+    }
+    .win-btn.btn-reverse:hover {
+        background: #000000;
+        border-color: #FDBA01;
+        transform: scale(1.02);
+    }
+    .win-btn:active {
+        transform: scale(0.98);
+    }
+
+    #resultRetryBtn {
+        background: #FDBA01;
+        color: #161616;
+    }
+    #resultRetryBtn:hover {
+        background: #C89300;
+    }
+
+    /* ---------- ФИНАЛЬНЫЙ ЭКРАН (БОНУС) ---------- */
+    #screen-main.is-final {
+        padding: 30px 24px 30px;  /* уменьшено с 40px 24px 40px */
+        background-image: url('./imgs/final_mob.jpg');
+        justify-content: flex-start;
+        align-items: center;
+        background-color: #161616;
+        min-height: 100dvh;
+        flex-direction: column;
+    }
+
+    #screen-main.is-final .promo-header {
+        flex-shrink: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    #screen-main.is-final .promo-content.final-block {
+        max-width: 342px;
+        width: 100%;
+        gap: 12px;              /* уменьшено с 20px */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        justify-content: center;
+        padding: 0;
+    }
+
+    #screen-main.is-final .promo-title {
+        font-size: 26px;        /* было 32px */
+        line-height: 100%;
+        text-transform: uppercase;
+        text-align: center !important;
+        margin: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    #screen-main.is-final .final-subtitles-group {
+        gap: 4px;
+        margin-bottom: 0;
+        align-items: center;
+        width: 100%;
+    }
+
+    #screen-main.is-final .final-bonus-heading {
+        font-size: 18px;        /* было 20px */
+        line-height: 130%;
+        text-align: center;
+        color: #FFFFFF;
+        width: 100%;
+        padding: 0;
+    }
+
+    #screen-main.is-final .final-subtitle-desc {
+        font-size: 14px;        /* было 14px, оставили */
+        font-weight: 400;
+        line-height: 130%;
+        text-align: center;
+        color: #FFFFFF;
+        margin: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    #screen-main.is-final .promo-btn {
+        width: 342px;
+        max-width: 100%;
+        height: 60px;
+        font-size: 20px;
+        margin: 0 auto;
+        background: #FDBA01;
+        color: #161616;
+        border-radius: 12px;
+        margin-bottom: 12px;    /* уменьшено с 20px */
+    }
+
+    #screen-main.is-final .legal-disclaimer {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        max-width: 342px;
+        font-size: 5px;
+        line-height: 130%;
+        color: #FFFFFF;
+        opacity: 1;
+        text-align: center;
+        margin-top: auto;
+        padding-bottom: 10px;
+    }
+
+    /* ---------- ОБЩИЕ МЕЛОЧИ ---------- */
+    .br-desktop {
+        display: none;
+    }
+    .br-mobile {
+        display: inline;
+    }
+    .result-background.win-bg {
+        background-image: url('./imgs/win_mob.jpg') !important;
+    }
+    .result-background.lose-bg {
+        background-image: url('./imgs/lose_mob.jpg') !important;
+    }
+
+    /* Блики и точки на карточках – адаптив */
+    .challenge-card {
+        position: relative;
+        overflow: hidden;
+    }
+    .shine-smal,
+    .shine-toll,
+    .dot-up,
+    .dot-dn {
+        position: absolute;
+        pointer-events: none;
+        height: auto;
+    }
+    .shine-smal {
+        top: 5%;
+    }
+    .shine-toll {
+        bottom: 15%;
+    }
+    .dot-up {
+        top: 8%;
+    }
+    .dot-dn {
+        bottom: 2%;
+    }
+
+    /* ---------- АНИМАЦИИ (задержки уменьшены) ---------- */
+    #screen-main .logo {
+        transition-delay: 0.1s;
+    }
+    #screen-main .promo-title {
+        transition-delay: 0.3s;
+        transform: translateY(20px);
+    }
+    #screen-main.active .promo-title {
+        transform: translateY(0);
+    }
+    #screen-main .promo-subtitle {
+        transition-delay: 0.5s;
+        transform: translateY(20px);
+    }
+    #screen-main.active .promo-subtitle {
+        transform: translateY(0);
+    }
+    #screen-main .promo-btn {
+        transition-delay: 0.7s;
+        transform: translateY(20px);
+    }
+    #screen-main.active .promo-btn {
+        transform: translateY(0);
+    }
+
+    #screen-challenge .challenge-title {
+        transition-delay: 0.2s;
+        transform: translateY(20px);
+    }
+    #screen-challenge.active .challenge-title {
+        transform: translateY(0);
+    }
+    #screen-challenge .challenge-subtitle {
+        transition-delay: 0.4s;
+        transform: translateY(20px);
+    }
+    #screen-challenge.active .challenge-subtitle {
+        transform: translateY(0);
+    }
+    #screen-challenge .challenge-card {
+        transform: translateY(20px);
+    }
+    #screen-challenge.active .challenge-card:nth-child(1) {
+        transition-delay: 0.6s;
+    }
+    #screen-challenge.active .challenge-card:nth-child(2) {
+        transition-delay: 0.8s;
+    }
+    #screen-challenge.active .challenge-card:nth-child(3) {
+        transition-delay: 1.0s;
+    }
+    #screen-challenge.active .challenge-card {
+        transform: translateY(0);
+    }
+    #screen-challenge .challenge-btn {
+        transition-delay: 1.2s;
+        transform: translateY(20px);
+    }
+    #screen-challenge.active .challenge-btn {
+        transform: translateY(0);
+    }
+
+    .game-screen .game-title {
+        transition-delay: 0.2s;
+        transform: translateY(20px);
+    }
+    .game-screen.active .game-title {
+        transform: translateY(0);
+    }
+    .game-screen .game-subtitle {
+        transition-delay: 0.4s;
+        transform: translateY(20px);
+    }
+    .game-screen.active .game-subtitle {
+        transform: translateY(0);
+    }
+    .game-screen .game-iframe-wrapper {
+        transition-delay: 0.6s;
+        transform: translateY(15px);
+    }
+    .game-screen.active .game-iframe-wrapper {
+        transform: translateY(0);
+    }
+    .game-screen .game-btn {
+        transition-delay: 0.8s;
+        transform: translateY(20px);
+    }
+    .game-screen.active .game-btn {
+        transform: translateY(0);
+    }
+
+    .screen-overlay-result .photo-card-wrapper {
+        transition-delay: 0.2s;
+    }
+    .screen-overlay-result .win-title {
+        transition-delay: 0.4s;
+        transform: translateY(20px);
+    }
+    .screen-overlay-result.active .win-title {
+        transform: translateY(0);
+    }
+    .screen-overlay-result .win-subtitle {
+        transition-delay: 0.6s;
+        transform: translateY(20px);
+    }
+    .screen-overlay-result.active .win-subtitle {
+        transform: translateY(0);
+    }
+    .screen-overlay-result .win-small-text {
+        transition-delay: 0.8s;
+        transform: translateY(20px);
+    }
+    .screen-overlay-result.active .win-small-text {
+        transform: translateY(0);
+    }
+    .screen-overlay-result .win-btn.btn-yellow {
+        transition-delay: 0.8s;
+        transform: translateY(20px);
+    }
+    .screen-overlay-result.active .win-btn.btn-yellow {
+        transform: translateY(0);
+    }
+    .screen-overlay-result .win-btn.btn-reverse {
+        transition-delay: 1.0s;
+        transform: translateY(20px);
+    }
+    .screen-overlay-result.active .win-btn.btn-reverse {
+        transform: translateY(0);
+    }
+
+    #screen-main.is-final .promo-title {
+        transition-delay: 0.2s;
+        transform: translateY(20px);
+    }
+    #screen-main.is-final.active .promo-title {
+        transform: translateY(0);
+    }
+    #screen-main.is-final .final-bonus-heading {
+        transition-delay: 0.4s;
+        transform: translateY(20px);
+    }
+    #screen-main.is-final.active .final-bonus-heading {
+        transform: translateY(0);
+    }
+    #screen-main.is-final .final-subtitle-desc {
+        transition-delay: 0.6s;
+        transform: translateY(20px);
+    }
+    #screen-main.is-final.active .final-subtitle-desc {
+        transform: translateY(0);
+    }
+    #screen-main.is-final .promo-btn {
+        transition-delay: 0.8s;
+        transform: translateY(20px);
+    }
+    #screen-main.is-final.active .promo-btn {
+        transform: translateY(0);
+    }
+    #screen-main.is-final .legal-disclaimer {
+        transition-delay: 1.0s;
+    }
+
+    #screen-main.is-final .promo-title-desktop {
+        display: none;
+    }
+    #screen-main.is-final .promo-title-mobile {
+        display: block;
+    }
+}

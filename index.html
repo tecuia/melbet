@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мелбет – Повтори легендарный момент</title>
+    <link rel="shortcut icon" href="./Favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+
+    <style>
+        @media (max-width: 767px) {
+            
+        #mechanic_1 {
+            transform: scale(2);
+        }
+
+        #mechanic_2 {
+            transform: scale(1.15);
+            transform-origin: right;
+        }
+
+        #mechanic_3 {
+            transform: scale(1.2);
+            transform-origin: right;
+        }
+        }
+
+        
+    .discl {
+        z-index: 99;
+        position: fixed;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 300;
+        text-align: center;
+        width: 100%;
+        bottom: 15px;
+    }
+    
+    @media (min-width: 768px) {
+        .discl {
+            font-size: 14px;
+        }
+    }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110126836', 'ym');
+
+        ym(110126836, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/110126836" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+<body>
+
+    <div class="discl">
+        <span>ООО "МЕЛОФОН"</span> <span>ИНН: 2540179758</span> <span>ERID: 2W5zFJfxtdP</span>
+    </div>
+    <!-- ===================== ГЛАВНЫЙ ПРОМО-ЭКРАН ===================== -->
+    <section id="screen-main" class="screen active">
+        <div class="dark-filter"></div>
+        <header class="promo-header">
+            <img src="./imgs/logo.png" alt="Мелбет" class="logo">
+        </header>
+        <div class="promo-content start-block">
+            <h1 class="promo-title promo-title-desktop">Повтори<br>легендарный&nbsp;момент</h1>
+            <h1 class="promo-title promo-title-mobile">Повтори<br>легендарный<br>момент</h1>
+            <p class="promo-subtitle">Реализуй легендарный момент Чемпионата Мира<br class="br-desktop"> по&nbsp;футболу <span class="br-mobile"><br></span> и&nbsp;<span class="highlight-text">получи бонус</span> от Мелбет</p>
+        </div>
+        <button class="promo-btn start-block" id="btnStart" onclick="ym(110126836,'reachGoal','game_start');">Начать</button>
+
+        <div class="promo-content final-block">
+            <h1 class="promo-title">Это было Легендарно&nbsp;— бонус твой!</h1>
+            <div class="final-subtitles-group">
+                <p class="final-bonus-heading">
+                    Фрибет <span class="highlight-yellow">до 25 000</span>
+                    <span class="deposit-text">на первый депозит</span>
+                </p>
+                <p class="promo-subtitle final-subtitle-desc">Смотри ЧМ по футболу и&nbsp;делай игру ярче с&nbsp;Мелбет</p>
+            </div>
+        </div>
+        <button class="promo-btn final-block" id="btnClaimBonus"  onclick="ym(110126836,'reachGoal','bonus_transfer');">Забрать бонус</button>
+        <div class="legal-disclaimer final-block">
+            Реклама 18+ Рекламодатель melbet.ru Розыгрыш происходит во время участия в азартной игре. Полные правила, информация об организаторе, о призовом фонде, количестве призов или выигрышей, о сроках, месте, и порядке их получения — на сайте melbet.ru. Срок проведения акции «ФРИБЕТ НА ПЕРВЫЙ ДЕПОЗИТ» с 09.03.2026 12:00 (UTC + 3) до 31.07.2026 12:00 (UTC + 3). Срок акции может быть изменен по усмотрению Организатора азартных игр.
+        </div>
+    </section>
+
+<!-- ===================== ЭКРАН ВЫБОРА ИСПЫТАНИЙ ===================== -->
+<section id="screen-challenge" class="screen">
+    <div class="dark-filter"></div>
+    <div class="top-gradient-challenge"></div>
+    
+    <div class="challenge-content">
+        <h1 class="challenge-title">Выбери испытание</h1>
+        <p class="challenge-subtitle">Три футбольных сценария — три способа повторить легендарный момент&nbsp;ЧМ. Успешно пройди хотя&nbsp;бы один, чтобы получить бонус</p>
+    </div>
+    
+<div class="cards-container" id="cardsContainer">
+        <!-- Карточка "Вратарь" -->
+        <div class="challenge-card" id="cardGoalkeeper" data-game="goalkeeper"
+            data-black="./imgs/goal_w.png" 
+            data-yellow="./imgs/goal_b.png"
+            data-green="./imgs/goal_w.png">
+
+            <!-- Блики -->
+            <img src="./imgs/line_smal.svg" alt="" class="shine-smal">
+            <img src="./imgs/line_toll.svg" alt="" class="shine-toll">
+            
+            <!-- Точки -->
+            <img src="./imgs/dot_up.svg" alt="" class="dot-up">
+            <img src="./imgs/dot_dn.svg" alt="" class="dot-dn">
+            
+            <img src="./imgs/goal_w.png" alt="Вратарь" class="card-img">
+            <div class="card-text">
+                <h3 class="card-title">Вратарь</h3>
+                <p class="card-description">Угадай угол удара<br>и попробуй спасти ворота</p>
+            </div>
+        </div>
+
+        <!-- Карточка "Бомбардир" -->
+        <div class="challenge-card" id="cardBombardier" data-game="bombardier"
+            data-black="./imgs/bom_w.png" 
+            data-yellow="./imgs/bom_b.png"
+            data-green="./imgs/bom_w.png">
+            
+            <!-- Блики -->
+            <img src="./imgs/line_smal.svg" alt="" class="shine-smal">
+            <img src="./imgs/line_toll.svg" alt="" class="shine-toll">
+            
+            <!-- Точки -->
+            <img src="./imgs/dot_up.svg" alt="" class="dot-up">
+            <img src="./imgs/dot_dn.svg" alt="" class="dot-dn">
+            
+            <img src="./imgs/bom_w.png" alt="Бомбардир" class="card-img">
+            <div class="card-text">
+                <h3 class="card-title">Бомбардир</h3>
+                <p class="card-description">Среагируй на летящий мяч<br>и забей гол в нужный момент</p>
+            </div>
+        </div>
+
+        <!-- Карточка "Снайпер" -->
+        <div class="challenge-card" id="cardSniper" data-game="sniper"
+            data-black="./imgs/snipe_w.png" 
+            data-yellow="./imgs/snipe_b.png"
+            data-green="./imgs/snipe_w.png">
+            
+            <!-- Блики -->
+            <img src="./imgs/line_smal.svg" alt="" class="shine-smal">
+            <img src="./imgs/line_toll.svg" alt="" class="shine-toll">
+            
+            <!-- Точки -->
+            <img src="./imgs/dot_up.svg" alt="" class="dot-up">
+            <img src="./imgs/dot_dn.svg" alt="" class="dot-dn">
+            
+            <img src="./imgs/snipe_w.png" alt="Снайпер" class="card-img">
+            <div class="card-text">
+                <h3 class="card-title">Снайпер</h3>
+                <p class="card-description">Рассчитай направление и силу<br>удара, чтобы попасть в ворота</p>
+            </div>
+        </div>
+</div>
+    
+    <div class="points-container" id="pointsContainer">
+        <span class="point active" data-index="0"></span>
+        <span class="point" data-index="1"></span>
+        <span class="point" data-index="2"></span>
+    </div>
+    
+    <button class="challenge-btn disabled" id="btnPlay">Начать игру</button>
+</section>
+
+
+    <!-- ===================== ИГРА «ВРАТАРЬ» ===================== -->
+<section id="screen-goalkeeper" class="screen game-screen">
+    <div class="top-gradient"></div>
+    <div class="game-content">
+        <h1 class="game-title">Отбей пенальти</h1>
+        <p class="game-subtitle">Смотри на разбег, выбирай угол и попробуй спасти ворота</p>
+    </div>
+    <div class="game-iframe-wrapper">
+        <iframe id="mechanic_1" data-src="./v2/ai_1.html" frameborder="0"></iframe>
+    </div>  
+        <!-- <button class="game-btn disabled" id="gkGoBtn">Поехали</button> -->
+    </section>
+
+    <!-- ===================== ИГРА «БОМБАРДИР» ===================== -->
+<section id="screen-bombardier" class="screen game-screen">
+    <div class="top-gradient"></div>
+    <div class="game-content">
+        <h1 class="game-title">Замкни передачу</h1>
+        <p class="game-subtitle">Среагируй на летящий мяч и забей гол в нужный момент</p>
+    </div>
+    <div class="game-iframe-wrapper">
+        <iframe id="mechanic_2" data-src="./v2/ai_2.html" frameborder="0"></iframe>
+    </div>
+    <!-- <button class="game-btn" id="bombGoBtn">Поехали</button> -->
+</section>
+
+    <!-- ===================== ИГРА «СНАЙПЕР» ===================== -->
+<section id="screen-sniper" class="screen game-screen">
+    <div class="top-gradient"></div>
+    <div class="game-content">
+        <h1 class="game-title">Пробей штрафной</h1>
+        <p class="game-subtitle">Рассчитай направление и силу удара, чтобы попасть в ворота</p>
+    </div>
+    <div class="game-iframe-wrapper">
+        <iframe id="mechanic_3" data-src="./v2/ai.html" frameborder="0"></iframe>
+    </div>
+    <!-- <button class="game-btn" id="sniperGoBtn">Поехали</button> -->
+</section>
+
+    <!-- ===================== УНИВЕРСАЛЬНЫЙ ЭКРАН РЕЗУЛЬТАТА ===================== -->
+    <section id="screen-result" class="screen screen-overlay-result">
+        <div class="result-background"></div>
+        <div class="result-content">
+            <div class="screen-content-left">
+                <h2 class="win-title" id="resultTitle">Сейв!</h2>
+                <p class="win-subtitle" id="resultSubtitle">Ты повторил один из ключевых сейвов ЧМ-2010: Икер Касильяс отбил пенальти Оскара Кардосо в матче Испания — Парагвай и сохранил шансы сборной на будущий титул!</p>
+                <div class="win-small-text" id="resultSmallText">Тебе доступен бонус</div>
+                <div class="win-buttons-layout">
+                    <!-- Жёлтые кнопки (показываются по одной) -->
+                    <button class="win-btn btn-yellow" id="resultBonusBtn">Забрать бонус</button>
+                    <button class="win-btn btn-yellow" id="resultRetryBtn" style="display:none;">Попробовать заново</button>
+                    
+                    <!-- Тёмная кнопка всегда внизу -->
+                    <button class="win-btn btn-reverse" id="resultOtherBtn">Другое испытание</button>
+                </div>
+            </div>
+            <div class="screen-content-right">
+                <div class="photo-card-wrapper">
+                    <img src="./imgs/safe.png" alt="Результат" class="win-safe-photo" id="resultImage">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
