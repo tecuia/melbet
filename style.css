@@ -1120,6 +1120,8 @@ game-content {
     font-weight: 300;
     z-index: 10;
     pointer-events: none;
+    color: #fff !important;
+    text-decoration: none !important;
 }
 /* ============================================================
    АДАПТИВ — МОБИЛЬНЫЕ ЭКРАНЫ (до 767px)
