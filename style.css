@@ -812,7 +812,7 @@ game-content {
     width: 100%;
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
-    font-size: clamp(0.5rem, 1vw, 1rem);
+    font-size: clamp(0.3rem, 0.7vw, 0.7rem);
     line-height: 1.3;
     color: #CDCDCD;
     position: relative;
